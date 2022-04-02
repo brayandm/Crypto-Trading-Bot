@@ -39,3 +39,13 @@ def get_current_price(client: Client, backup_currency: str, trading_currency: st
     price = client.get_24hr_stats(symbol)
     
     return float(price['last'])
+
+# Returns the currency price at the moment of the last buy order
+def get_last_order_price(client: Client, backup_currency: str, trading_currency: str):
+
+    symbol = trading_currency + '-' + backup_currency
+    history = client.get_orders(symbol, 'done', side = 'buy', trade_type = 'TRADE', limit = 10)
+    
+    invested, purchased = ( float(history['items'][0]['dealFunds']), float(history['items'][0]['dealSize']) )
+    return invested / purchased
+    

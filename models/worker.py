@@ -14,7 +14,7 @@ def evaluate_balance(client: Client, backup_currency: str, trading_currency: str
     if trade < constant.EPSILON:
         check_past_prices(client, backup_currency, trading_currency)
     else:
-        print('Preparing holding status')
+        holding(client, backup_currency, trading_currency)
 
 # Compares the past average with the current price and executes the corresponding action
 def check_past_prices(client: Client, backup_currency: str, trading_currency: str):
@@ -23,6 +23,8 @@ def check_past_prices(client: Client, backup_currency: str, trading_currency: st
 
             past_average = api.get_past_average(client, backup_currency, trading_currency)
             current_price = api.get_current_price(client, backup_currency, trading_currency)
+
+            print('Average and price: ' + str(past_average), str(current_price))
 
             if past_average < current_price:
                 time.sleep(constant.WAIT_TIME)
@@ -36,4 +38,34 @@ def check_past_prices(client: Client, backup_currency: str, trading_currency: st
                 break
 
         evaluate_balance(client, backup_currency, trading_currency)
-        
+
+# Determines the best moment to sell the currency
+def holding(client: Client, backup_currency: str, trading_currency: str):
+    
+    bought_price = api.get_last_order_price(client, backup_currency, trading_currency)
+    upper_limit = bought_price + bought_price / 50
+    lower_limit = bought_price - bought_price * 3 / 50
+    symbol = trading_currency + '-' + backup_currency
+
+    while True:
+
+        current_price = api.get_current_price(client, backup_currency, trading_currency)
+
+        print('Price and limits: ' + str(current_price), str(upper_limit), str(lower_limit))
+
+        if current_price > upper_limit:
+            back, trade = api.get_trade_balances(client, backup_currency, trading_currency)
+            client.create_limit_order(symbol, 'sell', upper_limit, trade)
+            print('Take Profit: Successfully sold ' + str(trade) + ' ' + trading_currency)
+            break
+
+        elif current_price <= lower_limit:
+            back, trade = api.get_trade_balances(client, backup_currency, trading_currency)
+            client.create_market_order(symbol, 'sell', size = trade)
+            print('Stop Loss: Successfully sold ' + str(trade) + ' ' + trading_currency)
+            break
+
+        else:
+            time.sleep(constant.WAIT_TIME)
+
+    evaluate_balance(client, backup_currency, trading_currency)
