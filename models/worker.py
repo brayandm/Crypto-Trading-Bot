@@ -56,7 +56,7 @@ def holding(client: Client, backup_currency: str, trading_currency: str):
         if current_price > upper_limit:
             back, trade = api.get_trade_balances(client, backup_currency, trading_currency)
             rounded = round(round(trade, constant.INCREMENT) - (10 ** -constant.INCREMENT), constant.INCREMENT)
-            client.create_limit_order(symbol, 'sell', round(upper_limit, constant.INCREMENT), rounded)
+            client.create_market_order(symbol, 'sell', size = rounded)
             print('Take Profit: Successfully sold ' + str(rounded) + ' ' + trading_currency)
             break
 
