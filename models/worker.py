@@ -27,7 +27,7 @@ def check_past_prices(client: Client, backup_currency: str, trading_currency: st
             print('Average and price: ' + str(past_average), str(current_price))
 
             if past_average < current_price:
-                time.sleep(constant.WAIT_TIME)
+                time.sleep(constant.WAIT_TIME * 3 / 2)
             else:
                 symbol = trading_currency + '-' + backup_currency
                 back, trade = api.get_trade_balances(client, backup_currency, trading_currency)
