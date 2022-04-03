@@ -7,7 +7,15 @@ def get_trade_balances(client: Client, backup_currency: str, trading_currency: s
     back = 0.0
     trade = 0.0
 
-    data = client.get_accounts()
+    flag = False
+    while flag == False:
+        try:
+            data = client.get_accounts()
+            flag = True
+        except:
+            print('Balance Failed... Attempting again')
+            flag = False
+    
     for account in data:
         if account['type'] == 'trade':
             if account['currency'] == backup_currency:
@@ -23,7 +31,14 @@ def get_past_average(client: Client, backup_currency: str, trading_currency: str
     past_date = int(datetime.today().timestamp()) - 60 * 60 * 3
     symbol = trading_currency + '-' + backup_currency
 
-    past_data = client.get_kline_data(symbol, '1min', past_date)
+    flag = False
+    while flag == False:
+        try:
+            past_data = client.get_kline_data(symbol, '1min', past_date)
+            flag = True
+        except:
+            print('Kline Failed... Attempting again')
+            flag = False
 
     total = 0.0
     for mark in past_data:
@@ -36,7 +51,15 @@ def get_past_average(client: Client, backup_currency: str, trading_currency: str
 def get_current_price(client: Client, backup_currency: str, trading_currency: str):
 
     symbol = trading_currency + '-' + backup_currency
-    price = client.get_24hr_stats(symbol)
+
+    flag = False
+    while flag == False:
+        try:
+            price = client.get_24hr_stats(symbol)
+            flag = True
+        except:
+            print('Price Failed... Attempting again')
+            flag = False
     
     return float(price['last'])
 
@@ -44,8 +67,16 @@ def get_current_price(client: Client, backup_currency: str, trading_currency: st
 def get_last_order_price(client: Client, backup_currency: str, trading_currency: str):
 
     symbol = trading_currency + '-' + backup_currency
-    history = client.get_orders(symbol, 'done', side = 'buy', trade_type = 'TRADE', limit = 10)
-    
+
+    flag = False
+    while flag == False:
+        try:
+            history = client.get_orders(symbol, 'done', side = 'buy', trade_type = 'TRADE', limit = 10)
+            flag = True
+        except:
+            print('Last Order Failed... Attempting again')
+            flag = False
+
     invested, purchased = ( float(history['items'][0]['dealFunds']), float(history['items'][0]['dealSize']) )
     return invested / purchased
     
