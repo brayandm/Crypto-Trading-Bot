@@ -1,6 +1,5 @@
 import os
 import json
-import time
 
 from kucoin.client import Market
 from kucoin.client import Trade
@@ -93,7 +92,7 @@ class Bot:
                 data = json.loads(get_message_database())
 
                 self.currency = data['currency']
-                self.symbol = data['symbol']
+                self.symbol = self.currency + '-USDT'
                 self.investment_order_limit = float(data['investment_order_limit'])
                 self.take_profit_percent = float(data['take_profit_percent'])
                 self.stop_loss_percent = float(data['stop_loss_percent'])
@@ -114,6 +113,8 @@ class Bot:
 
                 send('Function \'update_constants()\' failed... Attempting again')
 
+                self.update_status()
+
 
     def __init__(self):
 
@@ -130,6 +131,8 @@ class Bot:
             except: 
 
                 send('Function \'__init__()\' failed... Attempting again')
+
+                self.update_status()
 
 
     def get_constant_round(self):
@@ -150,11 +153,15 @@ class Bot:
 
                 while True:
 
+                    self.update_status()
+
                     pass    
 
             except:
 
                 send('Function \'get_constant_round()\' failed... Attempting again')
+
+                self.update_status()
 
 
     def round_number(self, number):
@@ -188,6 +195,8 @@ class Bot:
 
             while True:
 
+                self.update_status()
+
                 pass
         
         while True:
@@ -201,6 +210,8 @@ class Bot:
             except:
 
                 send('Function \'buy_currency()\' failed... Attempting again')
+
+                self.update_status()
 
 
     def sell_currency(self):
@@ -219,6 +230,8 @@ class Bot:
 
                 send('Function \'sell_currency()\' failed... Attempting again')
 
+                self.update_status()
+
 
     def get_balance_currency(self):
 
@@ -233,6 +246,8 @@ class Bot:
             except:
 
                 send('Function \'get_balance_currency()\' failed... Attempting again')
+
+                self.update_status()
         
         try:
 
@@ -257,6 +272,8 @@ class Bot:
 
                 send('Function \'get_balance_usdt()\' failed... Attempting again')
 
+                self.update_status()
+
         try:
 
             return data[0]['balance']
@@ -280,6 +297,8 @@ class Bot:
 
                 send('Function \'get_price_currency()\' failed... Attempting again')
 
+                self.update_status()
+
         return data['last']
 
 
@@ -302,6 +321,8 @@ class Bot:
 
                 print('Function \'get_average_last_prices()\' failed... Attempting again')
 
+                self.update_status()
+
         sum = 0
         
         for bucket in data:
@@ -311,9 +332,21 @@ class Bot:
         return sum / (len(data) * 2)
 
     
-    def update(self):
+    def print_balance(self):
 
-        if get_message_status().lower() == 'stop':
+        send('Total balance usdt: ' + self.get_balance_usdt() + ' USDT')
+        send('Total balance currency: ' + self.get_balance_currency() + ' ' + self.currency)
+
+
+    def update_status(self):
+
+        message = get_message_status().lower()
+
+        if message == 'balance':
+
+            self.print_balance()
+
+        elif message == 'stop':
 
             send('Bot stopped manually... Waiting')
 
@@ -326,7 +359,13 @@ class Bot:
                     send('Bot started manually...')
 
                     break
+
+
+    def update(self):
+
+        self.update_status()        
                     
+        balance_usdt = float(self.get_balance_usdt())
         balance_currency = float(self.get_balance_currency())
         price_currency = float(self.get_price_currency())
         average_last_prices = self.get_average_last_prices()
@@ -337,7 +376,13 @@ class Bot:
 
                 self.buy_currency()
 
-                send('Investment: buying currency in ' + str(price_currency) + ' usdt')
+                new_balance_usdt = self.get_balance_usdt()
+                new_balance_currency = self.get_balance_currency()
+
+                send('Investment: buying currency in ' + str(price_currency) + ' USDT')
+                send('Market buying price: ' + str(self.investment_order_limit / float(new_balance_currency)) + ' USDT')
+                send('Total balance usdt: ' + new_balance_usdt + ' USDT')
+                send('Total balance currency: ' + new_balance_currency + ' ' + self.currency)
 
         else:
 
@@ -349,20 +394,27 @@ class Bot:
 
                 self.sell_currency()
 
+                new_balance_usdt = self.get_balance_usdt()
+                new_balance_currency = self.get_balance_currency()
+
                 if price_currency < stop_loss:
 
-                    send('Stop loss: selling currency in ' + str(price_currency) + ' usdt')
+                    send('Stop loss: selling currency in ' + str(price_currency) + ' USDT')
 
                 if take_profit < price_currency:
 
-                    send('Take profit: selling currency in ' + str(price_currency) + ' usdt')
+                    send('Take profit: selling currency in ' + str(price_currency) + ' USDT')
 
-                send('Total balance: ' + self.get_balance_usdt() + ' usdt')
+                send('Market selling price: ' + str((float(new_balance_usdt) - float(balance_usdt)) / balance_currency) + ' USDT')
+                send('Total balance usdt: ' + new_balance_usdt + ' USDT')
+                send('Total balance currency: ' + new_balance_currency + ' ' + self.currency)
 
 
 send('Initializing bot...')
 
 B = Bot()
+
+B.print_balance()
 
 while True:
 
