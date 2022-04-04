@@ -22,8 +22,6 @@ def send(message):
 
         try:
 
-            time.sleep(1)
-
             telegram_bot.send_message(output_channel, message)
 
             break
@@ -99,7 +97,7 @@ class Bot:
                 self.investment_order_limit = float(data['investment_order_limit'])
                 self.take_profit_percent = float(data['take_profit_percent'])
                 self.stop_loss_percent = float(data['stop_loss_percent'])
-                self.last_prices_limit_time = float(data['last_prices_limit_time'])
+                self.last_prices_limit_time = int(data['last_prices_limit_time'])
                 self.eps = float(data['eps'])
 
                 message = 'Bot constants were updated:\n\n'
@@ -295,8 +293,6 @@ class Bot:
 
                 tend = tnow
                 tstart = tend - self.last_prices_limit_time
-
-                time.sleep(5)
 
                 data = self.client_market.get_kline(self.symbol, '1min', startAt = str(tstart), endAt = str(tend))
 
