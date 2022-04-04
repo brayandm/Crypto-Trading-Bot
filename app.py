@@ -300,7 +300,7 @@ class Bot:
 
             except:
 
-                send('Function \'get_average_last_prices()\' failed... Attempting again')
+                print('Function \'get_average_last_prices()\' failed... Attempting again')
 
         sum = 0
         
