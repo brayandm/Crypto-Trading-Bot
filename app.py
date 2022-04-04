@@ -1,5 +1,6 @@
 import os
 import json
+import time
 
 from kucoin.client import Market
 from kucoin.client import Trade
@@ -20,6 +21,8 @@ def send(message):
     while True:
 
         try:
+
+            time.sleep(1)
 
             telegram_bot.send_message(output_channel, message)
 
@@ -89,9 +92,7 @@ class Bot:
 
             try:
 
-                message = get_message_database()
-
-                data = json.loads(message)
+                data = json.loads(get_message_database())
 
                 self.currency = data['currency']
                 self.symbol = data['symbol']
@@ -101,7 +102,13 @@ class Bot:
                 self.last_prices_limit_time = float(data['last_prices_limit_time'])
                 self.eps = float(data['eps'])
 
-                send('Bot constants were updated:\n' + message)
+                message = 'Bot constants were updated:\n\n'
+
+                for var in data:
+
+                    message += var + ' = ' + data[var] + '\n'
+
+                send(message)
 
                 break
         
@@ -289,6 +296,8 @@ class Bot:
                 tend = tnow
                 tstart = tend - self.last_prices_limit_time
 
+                time.sleep(5)
+
                 data = self.client_market.get_kline(self.symbol, '1min', startAt = str(tstart), endAt = str(tend))
 
                 break
@@ -354,7 +363,9 @@ class Bot:
 
                 send('Total balance: ' + self.get_balance_usdt() + ' usdt')
 
-            
+
+send('Initializing bot...')
+
 B = Bot()
 
 while True:
