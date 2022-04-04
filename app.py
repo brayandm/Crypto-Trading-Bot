@@ -333,7 +333,7 @@ class Bot:
 
         if balance_currency * price_currency < self.eps:
 
-            if price_currency <= average_last_prices:
+            if price_currency >= average_last_prices:
 
                 self.buy_currency()
 
