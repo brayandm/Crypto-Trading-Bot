@@ -128,7 +128,7 @@ class Bot:
 
                 self.update_constants()    
 
-                self.constant_round = self.get_constant_round()
+                (self.constant_round_base, self.constant_round_price) = self.get_constant_round()
 
                 break
 
@@ -151,7 +151,7 @@ class Bot:
 
                     if bucket['symbol'] == self.symbol:
 
-                        return len(bucket['baseIncrement']) - 2
+                        return (len(bucket['baseIncrement']) - 2, len(bucket['priceIncrement'] - 2))
             
                 send('Symbol not found... Bot stopped')
 
@@ -168,7 +168,7 @@ class Bot:
                 self.update_status()
 
 
-    def round_number(self, number):
+    def round_number(self, number, precision):
 
         cad = str(number)
 
@@ -184,15 +184,25 @@ class Bot:
 
             return cad
             
-        while point_position + self.constant_round + 1 < len(cad):
+        while point_position + precision + 1 < len(cad):
 
             cad = cad[0:-1]
 
-        while len(cad) < point_position + self.constant_round + 1:
+        while len(cad) < point_position + precision + 1:
 
             cad += '0'
         
         return cad
+
+
+    def round_number_base(self, number):
+
+        return self.round_number(number, self.constant_round_base)
+
+
+    def round_number_price(self, number):
+
+        return self.round_number(number, self.constant_round_price)
 
 
     def buy_currency(self):
@@ -211,7 +221,7 @@ class Bot:
 
             try:
 
-                self.client_trade.create_market_order(self.symbol, 'buy', funds = self.round_number(self.investment_order_limit))
+                self.client_trade.create_market_order(self.symbol, 'buy', funds = self.round_number_price(self.investment_order_limit))
             
                 break
 
@@ -230,7 +240,7 @@ class Bot:
 
             try:
 
-                self.client_trade.create_market_order(self.symbol, 'sell', size = self.round_number(balance_currency))
+                self.client_trade.create_market_order(self.symbol, 'sell', size = self.round_number_base(balance_currency))
             
                 break
 
@@ -346,9 +356,9 @@ class Bot:
         balance_currency = self.get_balance_currency()
         price_currency = self.get_price_currency()
 
-        message = 'Total balance usdt: ' + self.round_number(balance_usdt) + ' USDT\n'
-        message += 'Total balance currency: ' + self.round_number(balance_currency) + ' ' + self.currency + '\n'
-        message += 'Total balance: ' + self.round_number(str(float(balance_usdt) + float(balance_currency) * float(price_currency))) + ' USDT'
+        message = 'Total balance usdt: ' + self.round_number_price(balance_usdt) + ' USDT\n'
+        message += 'Total balance currency: ' + self.round_number_price(balance_currency) + ' ' + self.currency + '\n'
+        message += 'Total balance: ' + self.round_number_price(str(float(balance_usdt) + float(balance_currency) * float(price_currency))) + ' USDT'
 
         send(message)
 
@@ -383,22 +393,22 @@ class Bot:
             take_profit = investment_price * (100 + self.take_profit_percent) / 100
 
             message = 'Investment status:\n\n'
-            message += 'Current price: ' + self.round_number(str(price_currency)) + ' USDT\n'
-            message += 'Investment price: ' + self.round_number(str(investment_price)) + ' USDT\n'
-            message += 'Stop loss price: ' + self.round_number(str(stop_loss)) + ' USDT\n'
-            message += 'Take profit price: ' + self.round_number(str(take_profit)) + ' USDT\n'
-            message += 'Stop loss: -' + self.round_number(str(self.investment_order_limit * self.stop_loss_percent / 100)) + ' USDT\n'
-            message += 'Take profit: +' + self.round_number(str(self.investment_order_limit * self.take_profit_percent / 100)) + ' USDT\n'
+            message += 'Current price: ' + self.round_number_price(str(price_currency)) + ' USDT\n'
+            message += 'Investment price: ' + self.round_number_price(str(investment_price)) + ' USDT\n'
+            message += 'Stop loss price: ' + self.round_number_price(str(stop_loss)) + ' USDT\n'
+            message += 'Take profit price: ' + self.round_number_price(str(take_profit)) + ' USDT\n'
+            message += 'Stop loss: -' + self.round_number_price(str(self.investment_order_limit * self.stop_loss_percent / 100)) + ' USDT\n'
+            message += 'Take profit: +' + self.round_number_price(str(self.investment_order_limit * self.take_profit_percent / 100)) + ' USDT\n'
 
             current_gain = self.investment_order_limit * price_currency / investment_price - self.investment_order_limit
 
             if current_gain < 0:
 
-                message += 'Current gain: ' + self.round_number(str(current_gain)) + ' USDT'
+                message += 'Current gain: ' + self.round_number_price(str(current_gain)) + ' USDT'
             
             else:
 
-                message += 'Current gain: +' + self.round_number(str(current_gain)) + ' USDT'
+                message += 'Current gain: +' + self.round_number_price(str(current_gain)) + ' USDT'
             
             send(message)
 
@@ -427,10 +437,10 @@ class Bot:
                 new_balance_currency = self.get_balance_currency()
 
                 message = 'Buying complete:\n\n'
-                message += 'Investment: buying currency in ' + self.round_number(str(price_currency)) + ' USDT\n'
-                message += 'Market buying price: ' + self.round_number(str(self.investment_order_limit / float(new_balance_currency))) + ' USDT\n'
-                message += 'Total balance usdt: ' + self.round_number(new_balance_usdt) + ' USDT\n'
-                message += 'Total balance currency: ' + self.round_number(new_balance_currency) + ' ' + self.currency
+                message += 'Investment: buying currency in ' + self.round_number_price(str(price_currency)) + ' USDT\n'
+                message += 'Market buying price: ' + self.round_number_price(str(self.investment_order_limit / float(new_balance_currency))) + ' USDT\n'
+                message += 'Total balance usdt: ' + self.round_number_price(new_balance_usdt) + ' USDT\n'
+                message += 'Total balance currency: ' + self.round_number_price(new_balance_currency) + ' ' + self.currency
 
                 send(message)
             
@@ -452,10 +462,10 @@ class Bot:
                 new_balance_currency = self.get_balance_currency()
 
                 message = 'Selling complete:\n\n'
-                message += 'Selling: selling currency in ' + self.round_number(str(price_currency)) + ' USDT\n'
-                message += 'Market selling price: ' + self.round_number(str((float(new_balance_usdt) - balance_usdt) / balance_currency)) + ' USDT\n'
-                message += 'Total balance usdt: ' + self.round_number(new_balance_usdt) + ' USDT\n'
-                message += 'Total balance currency: ' + self.round_number(new_balance_currency) + ' ' + self.currency
+                message += 'Selling: selling currency in ' + self.round_number_price(str(price_currency)) + ' USDT\n'
+                message += 'Market selling price: ' + self.round_number_price(str((float(new_balance_usdt) - balance_usdt) / balance_currency)) + ' USDT\n'
+                message += 'Total balance usdt: ' + self.round_number_price(new_balance_usdt) + ' USDT\n'
+                message += 'Total balance currency: ' + self.round_number_price(new_balance_currency) + ' ' + self.currency
 
                 send(message)
             
@@ -505,10 +515,10 @@ class Bot:
                 new_balance_currency = self.get_balance_currency()
 
                 message = 'Buying complete:\n\n'
-                message += 'Investment: buying currency in ' + self.round_number(str(price_currency)) + ' USDT\n'
-                message += 'Market buying price: ' + self.round_number(str(self.investment_order_limit / float(new_balance_currency))) + ' USDT\n'
-                message += 'Total balance usdt: ' + self.round_number(new_balance_usdt) + ' USDT\n'
-                message += 'Total balance currency: ' + self.round_number(new_balance_currency) + ' ' + self.currency
+                message += 'Investment: buying currency in ' + self.round_number_price(str(price_currency)) + ' USDT\n'
+                message += 'Market buying price: ' + self.round_number_price(str(self.investment_order_limit / float(new_balance_currency))) + ' USDT\n'
+                message += 'Total balance usdt: ' + self.round_number_price(new_balance_usdt) + ' USDT\n'
+                message += 'Total balance currency: ' + self.round_number_price(new_balance_currency) + ' ' + self.currency
 
                 send(message)
 
@@ -529,15 +539,15 @@ class Bot:
 
                 if price_currency < stop_loss:
 
-                    message += 'Stop loss: selling currency in ' + self.round_number(str(price_currency)) + ' USDT\n'
+                    message += 'Stop loss: selling currency in ' + self.round_number_price(str(price_currency)) + ' USDT\n'
 
                 if take_profit < price_currency:
 
-                    message += 'Take profit: selling currency in ' + self.round_number(str(price_currency)) + ' USDT\n'
+                    message += 'Take profit: selling currency in ' + self.round_number_price(str(price_currency)) + ' USDT\n'
 
-                message += 'Market selling price: ' + self.round_number(str((float(new_balance_usdt) - balance_usdt) / balance_currency)) + ' USDT\n'
-                message += 'Total balance usdt: ' + self.round_number(new_balance_usdt) + ' USDT\n'
-                message += 'Total balance currency: ' + self.round_number(new_balance_currency) + ' ' + self.currency
+                message += 'Market selling price: ' + self.round_number_price(str((float(new_balance_usdt) - balance_usdt) / balance_currency)) + ' USDT\n'
+                message += 'Total balance usdt: ' + self.round_number_price(new_balance_usdt) + ' USDT\n'
+                message += 'Total balance currency: ' + self.round_number_price(new_balance_currency) + ' ' + self.currency
 
                 send(message)
 
