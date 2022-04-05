@@ -344,7 +344,7 @@ class Bot:
 
         message = 'Total balance usdt: ' + balance_usdt + ' USDT\n'
         message += 'Total balance currency: ' + balance_currency + ' ' + self.currency + '\n'
-        message += 'Total balance in total: ' + str(float(balance_usdt) + float(balance_currency) * float(price_currency)) + ' USDT'
+        message += 'Total balance: ' + str(float(balance_usdt) + float(balance_currency) * float(price_currency)) + ' USDT'
 
         send(message)
 
@@ -379,12 +379,23 @@ class Bot:
             take_profit = investment_price * (100 + self.take_profit_percent) / 100
 
             message = 'Investment status:\n\n'
+            message += 'Current price: ' + str(price_currency) + ' USDT\n'
             message += 'Investment price: ' + str(investment_price) + ' USDT\n'
             message += 'Stop loss price: ' + str(stop_loss) + ' USDT\n'
             message += 'Take profit price: ' + str(take_profit) + ' USDT\n'
             message += 'Stop loss: -' + str(self.investment_order_limit * self.stop_loss_percent / 100) + ' USDT\n'
-            message += 'Take profit: +' + str(self.investment_order_limit * self.take_profit_percent / 100) + ' USDT'
+            message += 'Take profit: +' + str(self.investment_order_limit * self.take_profit_percent / 100) + ' USDT\n'
 
+            current_gain = self.investment_order_limit * price_currency / investment_price - self.investment_order_limit
+
+            if current_gain < 0:
+
+                message += 'Current gain: ' + str(current_gain) + ' USDT'
+            
+            else:
+
+                message += 'Current gain: +' + str(current_gain) + ' USDT'
+            
             send(message)
 
 
