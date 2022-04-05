@@ -151,7 +151,7 @@ class Bot:
 
                     if bucket['symbol'] == self.symbol:
 
-                        return (len(bucket['baseIncrement']) - 2, len(bucket['priceIncrement'] - 2))
+                        return (len(bucket['baseIncrement']) - 2, len(bucket['priceIncrement']) - 2)
             
                 send('Symbol not found... Bot stopped')
 
