@@ -44,7 +44,7 @@ def get_message_status():
 
             send('Function \'get_message_status()\' failed... Attempting again')
 
-    return data.pinned_message.text
+    return (data.pinned_message.text, data.pinned_message.message_id)
 
 
 def get_message_database():
@@ -61,7 +61,7 @@ def get_message_database():
 
             send('Function \'get_message_database()\' failed... Attempting again')
 
-    return data.pinned_message.text
+    return (data.pinned_message.text, data.pinned_message.message_id)
 
 
 class Bot:
@@ -73,6 +73,8 @@ class Bot:
     stop_loss_percent = 5.7
     last_prices_limit_time = 12600
     eps = 0.01
+
+    last_message_id_status = None
 
     api_key = os.environ['api_key']
     api_secret = os.environ['api_secret']
@@ -89,7 +91,7 @@ class Bot:
 
             try:
 
-                data = json.loads(get_message_database())
+                data = json.loads(get_message_database()[0])
 
                 self.currency = data['currency']
                 self.symbol = self.currency + '-USDT'
@@ -118,13 +120,15 @@ class Bot:
 
     def __init__(self):
 
+        self.last_message_id_status = get_message_status()[1]
+        
         while True:
 
             try:
 
-                self.update_constants()                
+                self.update_constants()    
 
-                self.constant_round = self.get_constant_round()   
+                self.constant_round = self.get_constant_round()
 
                 break
 
@@ -334,15 +338,121 @@ class Bot:
     
     def print_balance(self):
 
-        send('Total balance usdt: ' + self.get_balance_usdt() + ' USDT')
-        send('Total balance currency: ' + self.get_balance_currency() + ' ' + self.currency)
+        balance_usdt = self.get_balance_usdt()
+        balance_currency = self.get_balance_currency()
+        price_currency = self.get_price_currency()
+
+        message = 'Total balance usdt: ' + balance_usdt + ' USDT\n'
+        message += 'Total balance currency: ' + balance_currency + ' ' + self.currency + '\n'
+        message += 'Total balance in total: ' + str(float(balance_usdt) + float(balance_currency) * float(price_currency)) + ' USDT'
+
+        send(message)
+
+    
+    def investment_status(self):
+
+        balance_currency = float(self.get_balance_currency())
+        price_currency = float(self.get_price_currency())
+
+        if balance_currency * price_currency < self.eps:
+
+            return False
+        
+        else:
+
+            return True
+
+
+    def print_investment_status(self):
+
+        balance_currency = float(self.get_balance_currency())
+        price_currency = float(self.get_price_currency())
+
+        if balance_currency * price_currency < self.eps:
+
+            send('Investment status:\n\n\"No investment\"')
+
+        else:
+
+            investment_price = self.investment_order_limit / balance_currency
+            stop_loss = investment_price * (100 - self.stop_loss_percent) / 100
+            take_profit = investment_price * (100 + self.take_profit_percent) / 100
+
+            message = 'Investment status:\n\n'
+            message += 'Investment price: ' + str(investment_price) + ' USDT\n'
+            message += 'Stop loss price: ' + str(stop_loss) + ' USDT\n'
+            message += 'Take profit price: ' + str(take_profit) + ' USDT\n'
+            message += 'Stop loss: -' + str(self.investment_order_limit * self.stop_loss_percent / 100) + ' USDT\n'
+            message += 'Take profit: +' + str(self.investment_order_limit * self.take_profit_percent / 100) + ' USDT'
+
+            send(message)
 
 
     def update_status(self):
 
-        message = get_message_status().lower()
+        (message, message_id) = get_message_status()
 
-        if message == 'balance':
+        if message_id == self.last_message_id_status and message.lower() != 'stop':
+
+            return
+        
+        self.last_message_id_status = message_id
+
+        message = message.lower()
+
+        if message == 'buynow':
+
+            if self.investment_status() == False:
+
+                price_currency = float(self.get_price_currency())
+                
+                self.buy_currency()
+
+                new_balance_usdt = self.get_balance_usdt()
+                new_balance_currency = self.get_balance_currency()
+
+                message = 'Buying complete:\n\n'
+                message += 'Investment: buying currency in ' + str(price_currency) + ' USDT\n'
+                message += 'Market buying price: ' + str(self.investment_order_limit / float(new_balance_currency)) + ' USDT\n'
+                message += 'Total balance usdt: ' + new_balance_usdt + ' USDT\n'
+                message += 'Total balance currency: ' + new_balance_currency + ' ' + self.currency
+
+                send(message)
+            
+            else:
+
+                send('Buying canceled... There is already an investment')
+        
+        elif message == 'sellnow':
+
+            if self.investment_status() == True:
+
+                balance_usdt = float(self.get_balance_usdt())
+                balance_currency = float(self.get_balance_currency())
+                price_currency = float(self.get_price_currency())
+               
+                self.sell_currency()
+
+                new_balance_usdt = self.get_balance_usdt()
+                new_balance_currency = self.get_balance_currency()
+
+                message = 'Selling complete:\n\n'
+                message += 'Selling: selling currency in ' + str(price_currency) + ' USDT\n'
+                message += 'Market selling price: ' + str((float(new_balance_usdt) - balance_usdt) / balance_currency) + ' USDT\n'
+                message += 'Total balance usdt: ' + new_balance_usdt + ' USDT\n'
+                message += 'Total balance currency: ' + new_balance_currency + ' ' + self.currency
+
+                send(message)
+            
+            else:
+
+                send('Selling canceled... There is no investment right now')
+        
+        elif message == 'investment':
+
+            self.print_investment_status()
+
+        elif message == 'balance':
 
             self.print_balance()
 
@@ -352,7 +462,7 @@ class Bot:
 
             while True:
 
-                if get_message_status().lower() == 'start':
+                if get_message_status()[0].lower() == 'start':
 
                     self.update_constants()
 
@@ -372,17 +482,20 @@ class Bot:
 
         if balance_currency * price_currency < self.eps:
 
-            if price_currency >= average_last_prices:
+            if price_currency <= average_last_prices:
 
                 self.buy_currency()
 
                 new_balance_usdt = self.get_balance_usdt()
                 new_balance_currency = self.get_balance_currency()
 
-                send('Investment: buying currency in ' + str(price_currency) + ' USDT')
-                send('Market buying price: ' + str(self.investment_order_limit / float(new_balance_currency)) + ' USDT')
-                send('Total balance usdt: ' + new_balance_usdt + ' USDT')
-                send('Total balance currency: ' + new_balance_currency + ' ' + self.currency)
+                message = 'Buying complete:\n\n'
+                message += 'Investment: buying currency in ' + str(price_currency) + ' USDT\n'
+                message += 'Market buying price: ' + str(self.investment_order_limit / float(new_balance_currency)) + ' USDT\n'
+                message += 'Total balance usdt: ' + new_balance_usdt + ' USDT\n'
+                message += 'Total balance currency: ' + new_balance_currency + ' ' + self.currency
+
+                send(message)
 
         else:
 
@@ -397,17 +510,21 @@ class Bot:
                 new_balance_usdt = self.get_balance_usdt()
                 new_balance_currency = self.get_balance_currency()
 
+                message = 'Selling complete:\n\n'
+
                 if price_currency < stop_loss:
 
-                    send('Stop loss: selling currency in ' + str(price_currency) + ' USDT')
+                    message += 'Stop loss: selling currency in ' + str(price_currency) + ' USDT\n'
 
                 if take_profit < price_currency:
 
-                    send('Take profit: selling currency in ' + str(price_currency) + ' USDT')
+                    message += 'Take profit: selling currency in ' + str(price_currency) + ' USDT\n'
 
-                send('Market selling price: ' + str((float(new_balance_usdt) - float(balance_usdt)) / balance_currency) + ' USDT')
-                send('Total balance usdt: ' + new_balance_usdt + ' USDT')
-                send('Total balance currency: ' + new_balance_currency + ' ' + self.currency)
+                message += 'Market selling price: ' + str((float(new_balance_usdt) - balance_usdt) / balance_currency) + ' USDT\n'
+                message += 'Total balance usdt: ' + new_balance_usdt + ' USDT\n'
+                message += 'Total balance currency: ' + new_balance_currency + ' ' + self.currency
+
+                send(message)
 
 
 send('Initializing bot...')
