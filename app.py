@@ -425,7 +425,11 @@ class Bot:
 
         message = message.lower()
 
-        if message == 'buynow':
+        if message == 'price':
+
+            send('Currency price: ' + self.get_price_currency() + ' USDT')
+
+        elif message == 'buynow':
 
             if self.investment_status() == False:
 
