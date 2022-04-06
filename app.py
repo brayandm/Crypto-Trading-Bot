@@ -25,7 +25,9 @@ def send(message):
 
             break
 
-        except:
+        except Exception as e:
+
+            print(e)
 
             print('Function \'send()\' failed... Attempting again')
 
@@ -40,7 +42,9 @@ def get_message_status():
 
             break
 
-        except:
+        except Exception as e:
+
+            send(e)
 
             send('Function \'get_message_status()\' failed... Attempting again')
 
@@ -57,7 +61,9 @@ def get_message_database():
 
             break
 
-        except:
+        except Exception as e:
+
+            send(e)
 
             send('Function \'get_message_database()\' failed... Attempting again')
 
@@ -111,7 +117,9 @@ class Bot:
 
                 break
         
-            except:
+            except Exception as e:
+
+                send(e)
 
                 send('Function \'update_constants()\' failed... Attempting again')
 
@@ -132,7 +140,9 @@ class Bot:
 
                 break
 
-            except: 
+            except Exception as e:
+
+                send(e) 
 
                 send('Function \'__init__()\' failed... Attempting again')
 
@@ -161,7 +171,9 @@ class Bot:
 
                     pass    
 
-            except:
+            except Exception as e:
+
+                send(e)
 
                 send('Function \'get_constant_round()\' failed... Attempting again')
 
@@ -225,7 +237,9 @@ class Bot:
             
                 break
 
-            except:
+            except Exception as e:
+
+                send(e)
 
                 send('Function \'buy_currency()\' failed... Attempting again')
 
@@ -244,7 +258,9 @@ class Bot:
             
                 break
 
-            except:
+            except Exception as e:
+
+                send(e)
 
                 send('Function \'sell_currency()\' failed... Attempting again')
 
@@ -261,7 +277,9 @@ class Bot:
 
                 break
 
-            except:
+            except Exception as e:
+
+                send(e)
 
                 send('Function \'get_balance_currency()\' failed... Attempting again')
 
@@ -286,7 +304,9 @@ class Bot:
 
                 break
 
-            except:
+            except Exception as e:
+
+                send(e)
 
                 send('Function \'get_balance_usdt()\' failed... Attempting again')
 
@@ -311,7 +331,9 @@ class Bot:
 
                 break
 
-            except:
+            except Exception as e:
+
+                send(e)
 
                 send('Function \'get_price_currency()\' failed... Attempting again')
 
@@ -335,7 +357,9 @@ class Bot:
 
                 break
 
-            except:
+            except Exception as e:
+
+                print(e)
 
                 print('Function \'get_average_last_prices()\' failed... Attempting again')
 
