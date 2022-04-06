@@ -1,5 +1,6 @@
 import os
 import json
+import time
 
 from kucoin.client import Market
 from kucoin.client import Trade
@@ -235,6 +236,30 @@ class Bot:
 
                 self.client_trade.create_market_order(self.symbol, 'buy', funds = self.round_number_price(self.investment_order_limit))
             
+                while True:
+
+                    try:
+
+                        data = self.client_trade.get_order_list(status = 'active')
+
+                        if len(data['items']) != 0:
+
+                            send('Buying currency...')
+
+                            self.update_status()
+
+                            continue
+                    
+                        break
+
+                    except Exception as e:
+                       
+                        send(e)
+
+                        send('Function \'get_order_list()\' failed... Attempting again')
+
+                        self.update_status()
+
                 break
 
             except Exception as e:
@@ -256,6 +281,30 @@ class Bot:
 
                 self.client_trade.create_market_order(self.symbol, 'sell', size = self.round_number_base(balance_currency))
             
+                while True:
+
+                    try:
+
+                        data = self.client_trade.get_order_list(status = 'active')
+
+                        if len(data['items']) != 0:
+
+                            send('Selling currency...')
+
+                            self.update_status()
+
+                            continue
+                    
+                        break
+
+                    except Exception as e:
+                       
+                        send(e)
+
+                        send('Function \'get_order_list()\' failed... Attempting again')
+
+                        self.update_status()
+
                 break
 
             except Exception as e:
