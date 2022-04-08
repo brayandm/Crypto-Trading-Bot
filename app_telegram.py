@@ -12,7 +12,7 @@ class Telegram:
         self.database_channel = os.environ['database_channel']
 
 
-    def exception_control_only_print(function, **kwargs):
+    def exception_control_only_print(self, function, **kwargs):
 
         while True:
 
