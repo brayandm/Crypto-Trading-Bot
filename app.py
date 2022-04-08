@@ -150,7 +150,7 @@ class Bot:
 
             self.print_balance()
         
-        elif message == 'self.update_constants()':
+        elif message == 'update':
 
             self.update_constants()
 

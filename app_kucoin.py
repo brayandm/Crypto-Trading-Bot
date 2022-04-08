@@ -116,7 +116,7 @@ class Kucoin:
 
         arr = []
 
-        for bucket in ExceptionC.with_send(self.client_market.get_kline, symbol = self.get_symbol_from_currency(currency), kline_type = '1min', startAt = str(tstart), endAt = str(tend)):
+        for bucket in ExceptionC.with_print(self.client_market.get_kline, symbol = self.get_symbol_from_currency(currency), kline_type = '1min', startAt = str(tstart), endAt = str(tend)):
 
             arr.append(bucket[2])
 
