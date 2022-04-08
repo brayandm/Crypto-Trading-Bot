@@ -36,7 +36,7 @@ class Kucoin:
 
                 return (len(bucket['baseIncrement']) - 2, len(bucket['priceIncrement']) - 2)
     
-        telegram_bot.send('Symbol not found... Bot stopped')
+        telegram_bot.send('Symbol not found...')
 
         ExceptionC.stop_bot()
 
@@ -127,7 +127,7 @@ class Kucoin:
 
         if float(self.get_balance_usdt()) < float(funds):
 
-            telegram_bot.send('Insufficient usdt balance to buy... Bot stopped')
+            telegram_bot.send('Insufficient usdt balance to buy...')
 
             ExceptionC.stop_bot()
 
@@ -148,7 +148,7 @@ class Kucoin:
 
         if float(self.get_balance_currency(currency)) < float(size):
 
-            telegram_bot.send('Insufficient currency balance to sell... Bot stopped')
+            telegram_bot.send('Insufficient currency balance to sell...')
 
             ExceptionC.stop_bot()
 

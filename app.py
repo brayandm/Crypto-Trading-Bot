@@ -38,7 +38,7 @@ class Bot:
 
         except:
 
-            telegram_bot.send('There was an error extracting the constants in the database... Bot stopped')
+            telegram_bot.send('There was an error extracting the constants in the database...')
 
             ExceptionC.stop_bot()
 

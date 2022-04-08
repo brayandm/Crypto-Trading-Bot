@@ -4,6 +4,8 @@ class ExceptionControl:
 
     def stop_bot(self):
 
+        telegram_bot.send('Bot stopped automatically...')
+
         while True:
 
             pass
