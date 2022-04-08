@@ -22,7 +22,7 @@ class Telegram:
 
             except Exception as e:
 
-                print(e)
+                print(str(e))
 
                 print(str(function) + ' failed... Attempting again')
 

@@ -344,7 +344,7 @@ class Bot:
 
             except Exception as e:
 
-                print(e)
+                print(str(e))
 
                 print('Function \'get_average_last_prices()\' failed... Attempting again')
 
