@@ -39,7 +39,7 @@ class Telegram:
 
                 self.send(e)
 
-                print(str(function) + ' failed... Attempting again')
+                self.send(str(function) + ' failed... Attempting again')
 
 
     def send(self, message):
