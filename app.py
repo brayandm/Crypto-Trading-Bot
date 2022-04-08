@@ -149,6 +149,10 @@ class Bot:
         elif message == 'balance':
 
             self.print_balance()
+        
+        elif message == 'self.update_constants()':
+
+            self.update_constants()
 
         elif message == 'stop':
 
@@ -157,8 +161,6 @@ class Bot:
             while True:
 
                 if telegram_bot.get_message_status()[0].lower() == 'start':
-
-                    self.update_constants()
 
                     telegram_bot.send('Bot started manually...')
 
