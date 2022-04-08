@@ -2,6 +2,7 @@ import os
 
 from telegram import Bot
 
+
 class Telegram:
 
     def __init__(self):
@@ -12,53 +13,59 @@ class Telegram:
         self.database_channel = os.environ['database_channel']
 
 
-    def exception_control_only_print(self, function, **kwargs):
+    def send(self, message):
+
+        print(message)
 
         while True:
 
             try:
 
-                return function(**kwargs)
+                self.telegram_bot.send_message(self.output_channel, message)
+
+                break
 
             except Exception as e:
 
                 print(e)
 
-                print('Function \'' + str(function)[10:-19] + '()' + '\' failed... Attempting again')
+                print('Function \'send()\' failed... Attempting again')
 
-
-    def exception_control(self, function, **kwargs):
+    
+    def get_message_status(self):
 
         while True:
 
             try:
 
-                return function(**kwargs)
+                data = self.telegram_bot.get_chat(self.status_channel)
+
+                break
 
             except Exception as e:
 
                 self.send(e)
 
-                self.send('Function \'' + str(function)[10:-19] + '()' + '\' failed... Attempting again')
-
-
-    def send(self, message):
-
-        print(message)
-
-        self.exception_control_only_print(self.telegram_bot.send_message, self.output_channel, message)
-
-    
-    def get_message_status(self):
-
-        data = self.exception_control(self.telegram_bot.get_chat, self.status_channel)
+                self.send('Function \'get_message_status()\' failed... Attempting again')
 
         return (data.pinned_message.text, data.pinned_message.message_id)
 
 
     def get_message_database(self):
 
-        data = self.exception_control(self.telegram_bot.get_chat, self.database_channel)
+        while True:
+
+            try:
+
+                data = self.telegram_bot.get_chat(self.database_channel)
+
+                break
+
+            except Exception as e:
+
+                self.send(e)
+
+                self.send('Function \'get_message_database()\' failed... Attempting again')
 
         return (data.pinned_message.text, data.pinned_message.message_id)
 
