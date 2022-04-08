@@ -1,85 +1,381 @@
+import os
 import json
 
-from app_kucoin import Kc
+from kucoin.client import Market
+from kucoin.client import Trade
+from kucoin.client import User
+
 from app_telegram import telegram_bot
-from app_exception_control import ExceptionControl
 
 class Bot:
     
-    # currency = 'NEAR'
-    # symbol = 'NEAR-USDT'
-    # investment_order_limit = 10
-    # take_profit_percent = 2.3
-    # stop_loss_percent = 5.7
-    # last_prices_limit_time = 210
-    # eps = 0.01
+    currency = 'NEAR'
+    symbol = 'NEAR-USDT'
+    investment_order_limit = 10
+    take_profit_percent = 2.3
+    stop_loss_percent = 5.7
+    last_prices_limit_time = 12600
+    eps = 0.01
+
+    last_message_id_status = None
+
+    api_key = os.environ['api_key']
+    api_secret = os.environ['api_secret']
+    api_passphrase = os.environ['api_passphrase']
+    is_sandbox = True if os.environ['is_sandbox'] == 'yes' else False
+
+    client_market = Market()
+    client_trade = Trade(key=api_key, secret=api_secret, passphrase=api_passphrase, is_sandbox=is_sandbox)
+    client_user = User(key=api_key, secret=api_secret, passphrase=api_passphrase, is_sandbox=is_sandbox)
 
     def update_constants(self):
 
-        data = json.loads(telegram_bot.get_message_database()[0])
+        while True:
 
-        try:
+            try:
 
-            self.currency = data['currency']
-            self.symbol = self.currency + '-USDT'
-            self.investment_order_limit = float(data['investment_order_limit'])
-            self.take_profit_percent = float(data['take_profit_percent'])
-            self.stop_loss_percent = float(data['stop_loss_percent'])
-            self.last_prices_limit_time = int(data['last_prices_limit_time'])
-            self.eps = float(data['eps'])
+                data = json.loads(telegram_bot.get_message_database()[0])
 
-            message = 'Bot constants were updated:\n\n'
+                self.currency = data['currency']
+                self.symbol = self.currency + '-USDT'
+                self.investment_order_limit = float(data['investment_order_limit'])
+                self.take_profit_percent = float(data['take_profit_percent'])
+                self.stop_loss_percent = float(data['stop_loss_percent'])
+                self.last_prices_limit_time = int(data['last_prices_limit_time'])
+                self.eps = float(data['eps'])
 
-            for var in data:
+                message = 'Bot constants were updated:\n\n'
 
-                message += var + ' = ' + data[var] + '\n'
+                for var in data:
 
-            telegram_bot.send(message)
+                    message += var + ' = ' + data[var] + '\n'
 
-        except:
+                telegram_bot.send(message)
 
-            telegram_bot.send('There was an error extracting the constants in the database... Bot stopped')
+                break
+        
+            except Exception as e:
 
-            ExceptionControl.stop_bot()
+                telegram_bot.send(str(e))
+
+                telegram_bot.send('Function \'update_constants()\' failed... Attempting again')
+
+                self.update_status()
 
 
     def __init__(self):
 
         self.last_message_id_status = telegram_bot.get_message_status()[1]
         
-        self.update_constants()    
+        while True:
+
+            try:
+
+                self.update_constants()    
+
+                (self.constant_round_base, self.constant_round_price) = self.get_constant_round()
+
+                break
+
+            except Exception as e:
+
+                telegram_bot.send(str(e)) 
+
+                telegram_bot.send('Function \'__init__()\' failed... Attempting again')
+
+                self.update_status()
+
+
+    def get_constant_round(self):
+
+        while True:
+
+            try:
+
+                data = self.client_market.get_symbol_list()
+
+                for bucket in data:
+
+                    if bucket['symbol'] == self.symbol:
+
+                        return (len(bucket['baseIncrement']) - 2, len(bucket['priceIncrement']) - 2)
+            
+                telegram_bot.send('Symbol not found... Bot stopped')
+
+                while True:
+
+                    self.update_status()
+
+                    pass    
+
+            except Exception as e:
+
+                telegram_bot.send(str(e))
+
+                telegram_bot.send('Function \'get_constant_round()\' failed... Attempting again')
+
+                self.update_status()
+
+
+    def round_number(self, number, precision):
+
+        cad = str(number)
+
+        point_position = -1
+
+        for i in range(len(cad)):
+
+            if cad[i] == '.':
+
+                point_position = i
+        
+        if point_position == -1:
+
+            return cad
+            
+        while point_position + precision + 1 < len(cad):
+
+            cad = cad[0:-1]
+
+        while len(cad) < point_position + precision + 1:
+
+            cad += '0'
+        
+        return cad
+
+
+    def round_number_base(self, number):
+
+        return self.round_number(number, self.constant_round_base)
+
+
+    def round_number_price(self, number):
+
+        return self.round_number(number, self.constant_round_price)
+
+
+    def buy_currency(self):
+
+        if float(self.get_balance_usdt()) < self.investment_order_limit:
+
+            telegram_bot.send('Insufficient balance to invest... Bot stopped')
+
+            while True:
+
+                self.update_status()
+
+                pass
+        
+        while True:
+
+            try:
+
+                self.client_trade.create_market_order(self.symbol, 'buy', funds = self.round_number_price(self.investment_order_limit))
+            
+                while True:
+
+                    try:
+
+                        data = self.client_trade.get_order_list(status = 'active')
+
+                        if len(data['items']) != 0:
+
+                            telegram_bot.send('Buying currency...')
+
+                            self.update_status()
+
+                            continue
+                    
+                        break
+
+                    except Exception as e:
+                       
+                        telegram_bot.send(str(e))
+
+                        telegram_bot.send('Function \'get_order_list()\' failed... Attempting again')
+
+                        self.update_status()
+
+                break
+
+            except Exception as e:
+
+                telegram_bot.send(str(e))
+
+                telegram_bot.send('Function \'buy_currency()\' failed... Attempting again')
+
+                self.update_status()
+
+
+    def sell_currency(self):
+
+        balance_currency = self.get_balance_currency()
+
+        while True:
+
+            try:
+
+                self.client_trade.create_market_order(self.symbol, 'sell', size = self.round_number_base(balance_currency))
+            
+                while True:
+
+                    try:
+
+                        data = self.client_trade.get_order_list(status = 'active')
+
+                        if len(data['items']) != 0:
+
+                            telegram_bot.send('Selling currency...')
+
+                            self.update_status()
+
+                            continue
+                    
+                        break
+
+                    except Exception as e:
+                       
+                        telegram_bot.send(str(e))
+
+                        telegram_bot.send('Function \'get_order_list()\' failed... Attempting again')
+
+                        self.update_status()
+
+                break
+
+            except Exception as e:
+
+                telegram_bot.send(str(e))
+
+                telegram_bot.send('Function \'sell_currency()\' failed... Attempting again')
+
+                self.update_status()
+
+
+    def get_balance_currency(self):
+
+        while True:
+
+            try:
+
+                data = self.client_user.get_account_list(self.currency, 'trade')
+
+                break
+
+            except Exception as e:
+
+                telegram_bot.send(str(e))
+
+                telegram_bot.send('Function \'get_balance_currency()\' failed... Attempting again')
+
+                self.update_status()
+        
+        try:
+
+            return data[0]['balance']
+
+        except:
+
+            return str(0)
+
+    
+    def get_balance_usdt(self):
+
+        while True:
+
+            try:
+
+                data = self.client_user.get_account_list('USDT', 'trade')
+
+                break
+
+            except Exception as e:
+
+                telegram_bot.send(str(e))
+
+                telegram_bot.send('Function \'get_balance_usdt()\' failed... Attempting again')
+
+                self.update_status()
+
+        try:
+
+            return data[0]['balance']
+
+        except:
+
+            return str(0)
+
+
+    def get_price_currency(self):
+
+        while True:
+
+            try:
+
+                data = self.client_market.get_24h_stats(self.symbol)
+
+                break
+
+            except Exception as e:
+
+                telegram_bot.send(str(e))
+
+                telegram_bot.send('Function \'get_price_currency()\' failed... Attempting again')
+
+                self.update_status()
+
+        return data['last']
 
 
     def get_average_last_prices(self):
 
-        data = Kc.get_last_minutes(self.currency, self.last_prices_limit_time)
+        while True:
+
+            try:
+
+                tnow = self.client_market.get_server_timestamp() // 1000
+
+                tend = tnow
+                tstart = tend - self.last_prices_limit_time
+
+                data = self.client_market.get_kline(self.symbol, '1min', startAt = str(tstart), endAt = str(tend))
+
+                break
+
+            except Exception as e:
+
+                print(e)
+
+                print('Function \'get_average_last_prices()\' failed... Attempting again')
+
+                self.update_status()
 
         sum = 0
         
-        for x in data:
+        for bucket in data:
 
-            sum += float(x)
+            sum += float(bucket[1]) + float(bucket[2])
         
-        return sum / len(data)
+        return sum / (len(data) * 2)
 
     
     def print_balance(self):
 
-        balance_usdt = Kc.get_balance_usdt()
-        balance_currency = Kc.get_balance_currency(self.currency)
-        price_currency = Kc.get_price_currency(self.currency)
+        balance_usdt = self.get_balance_usdt()
+        balance_currency = self.get_balance_currency()
+        price_currency = self.get_price_currency()
 
-        message = 'Total balance usdt: ' + Kc.round_number_price(self.currency, balance_usdt) + ' USDT\n'
-        message += 'Total balance currency: ' + Kc.round_number_price(self.currency, balance_currency) + ' ' + self.currency + '\n'
-        message += 'Total balance: ' + Kc.round_number_price(self.currency, str(float(balance_usdt) + float(balance_currency) * float(price_currency))) + ' USDT'
+        message = 'Total balance usdt: ' + self.round_number_price(balance_usdt) + ' USDT\n'
+        message += 'Total balance currency: ' + self.round_number_price(balance_currency) + ' ' + self.currency + '\n'
+        message += 'Total balance: ' + self.round_number_price(str(float(balance_usdt) + float(balance_currency) * float(price_currency))) + ' USDT'
 
         telegram_bot.send(message)
 
     
     def investment_status(self):
 
-        balance_currency = float(Kc.get_balance_currency(self.currency))
-        price_currency = float(Kc.get_price_currency(self.currency))
+        balance_currency = float(self.get_balance_currency())
+        price_currency = float(self.get_price_currency())
 
         if balance_currency * price_currency < self.eps:
 
@@ -92,8 +388,8 @@ class Bot:
 
     def print_investment_status(self):
 
-        balance_currency = float(Kc.get_balance_currency(self.currency))
-        price_currency = float(Kc.get_price_currency(self.currency))
+        balance_currency = float(self.get_balance_currency())
+        price_currency = float(self.get_price_currency())
 
         if balance_currency * price_currency < self.eps:
 
@@ -106,22 +402,22 @@ class Bot:
             take_profit = investment_price * (100 + self.take_profit_percent) / 100
 
             message = 'Investment status:\n\n'
-            message += 'Current price: ' + Kc.round_number_price(self.currency, str(price_currency)) + ' USDT\n'
-            message += 'Investment price: ' + Kc.round_number_price(self.currency, str(investment_price)) + ' USDT\n'
-            message += 'Stop loss price: ' + Kc.round_number_price(self.currency, str(stop_loss)) + ' USDT\n'
-            message += 'Take profit price: ' + Kc.round_number_price(self.currency, str(take_profit)) + ' USDT\n'
-            message += 'Stop loss: -' + Kc.round_number_price(self.currency, str(self.investment_order_limit * self.stop_loss_percent / 100)) + ' USDT\n'
-            message += 'Take profit: +' + Kc.round_number_price(self.currency, str(self.investment_order_limit * self.take_profit_percent / 100)) + ' USDT\n'
+            message += 'Current price: ' + self.round_number_price(str(price_currency)) + ' USDT\n'
+            message += 'Investment price: ' + self.round_number_price(str(investment_price)) + ' USDT\n'
+            message += 'Stop loss price: ' + self.round_number_price(str(stop_loss)) + ' USDT\n'
+            message += 'Take profit price: ' + self.round_number_price(str(take_profit)) + ' USDT\n'
+            message += 'Stop loss: -' + self.round_number_price(str(self.investment_order_limit * self.stop_loss_percent / 100)) + ' USDT\n'
+            message += 'Take profit: +' + self.round_number_price(str(self.investment_order_limit * self.take_profit_percent / 100)) + ' USDT\n'
 
             current_gain = self.investment_order_limit * price_currency / investment_price - self.investment_order_limit
 
             if current_gain < 0:
 
-                message += 'Current gain: ' + Kc.round_number_price(self.currency, str(current_gain)) + ' USDT'
+                message += 'Current gain: ' + self.round_number_price(str(current_gain)) + ' USDT'
             
             else:
 
-                message += 'Current gain: +' + Kc.round_number_price(self.currency, str(current_gain)) + ' USDT'
+                message += 'Current gain: +' + self.round_number_price(str(current_gain)) + ' USDT'
             
             telegram_bot.send(message)
 
@@ -140,7 +436,55 @@ class Bot:
 
         if message == 'price':
 
-            telegram_bot.send('Currency price: ' + Kc.get_price_currency() + ' USDT')
+            telegram_bot.send('Currency price: ' + self.get_price_currency() + ' USDT')
+
+        elif message == 'buynow':
+
+            if self.investment_status() == False:
+
+                price_currency = float(self.get_price_currency())
+                
+                self.buy_currency()
+
+                new_balance_usdt = self.get_balance_usdt()
+                new_balance_currency = self.get_balance_currency()
+
+                message = 'Buying complete:\n\n'
+                message += 'Investment: buying currency in ' + self.round_number_price(str(price_currency)) + ' USDT\n'
+                message += 'Market buying price: ' + self.round_number_price(str(self.investment_order_limit / float(new_balance_currency))) + ' USDT\n'
+                message += 'Total balance usdt: ' + self.round_number_price(new_balance_usdt) + ' USDT\n'
+                message += 'Total balance currency: ' + self.round_number_price(new_balance_currency) + ' ' + self.currency
+
+                telegram_bot.send(message)
+            
+            else:
+
+                telegram_bot.send('Buying canceled... There is already an investment')
+        
+        elif message == 'sellnow':
+
+            if self.investment_status() == True:
+
+                balance_usdt = float(self.get_balance_usdt())
+                balance_currency = float(self.get_balance_currency())
+                price_currency = float(self.get_price_currency())
+               
+                self.sell_currency()
+
+                new_balance_usdt = self.get_balance_usdt()
+                new_balance_currency = self.get_balance_currency()
+
+                message = 'Selling complete:\n\n'
+                message += 'Selling: selling currency in ' + self.round_number_price(str(price_currency)) + ' USDT\n'
+                message += 'Market selling price: ' + self.round_number_price(str((float(new_balance_usdt) - balance_usdt) / balance_currency)) + ' USDT\n'
+                message += 'Total balance usdt: ' + self.round_number_price(new_balance_usdt) + ' USDT\n'
+                message += 'Total balance currency: ' + self.round_number_price(new_balance_currency) + ' ' + self.currency
+
+                telegram_bot.send(message)
+            
+            else:
+
+                telegram_bot.send('Selling canceled... There is no investment right now')
         
         elif message == 'investment':
 
@@ -169,25 +513,25 @@ class Bot:
 
         self.update_status()        
                     
-        balance_usdt = float(Kc.get_balance_usdt())
-        balance_currency = float(Kc.get_balance_currency(self.currency))
-        price_currency = float(Kc.get_price_currency(self.currency))
+        balance_usdt = float(self.get_balance_usdt())
+        balance_currency = float(self.get_balance_currency())
+        price_currency = float(self.get_price_currency())
         average_last_prices = self.get_average_last_prices()
 
         if balance_currency * price_currency < self.eps:
 
             if price_currency <= average_last_prices:
 
-                Kc.buy_currency(self.currency, self.investment_order_limit)
+                self.buy_currency()
 
-                new_balance_usdt = Kc.get_balance_usdt()
-                new_balance_currency = Kc.get_balance_currency(self.currency)
+                new_balance_usdt = self.get_balance_usdt()
+                new_balance_currency = self.get_balance_currency()
 
                 message = 'Buying complete:\n\n'
-                message += 'Investment: buying currency in ' + Kc.round_number_price(self.currency, str(price_currency)) + ' USDT\n'
-                message += 'Market buying price: ' + Kc.round_number_price(self.currency, str(self.investment_order_limit / float(new_balance_currency))) + ' USDT\n'
-                message += 'Total balance usdt: ' + Kc.round_number_price(self.currency, new_balance_usdt) + ' USDT\n'
-                message += 'Total balance currency: ' + Kc.round_number_price(self.currency, new_balance_currency) + ' ' + self.currency
+                message += 'Investment: buying currency in ' + self.round_number_price(str(price_currency)) + ' USDT\n'
+                message += 'Market buying price: ' + self.round_number_price(str(self.investment_order_limit / float(new_balance_currency))) + ' USDT\n'
+                message += 'Total balance usdt: ' + self.round_number_price(new_balance_usdt) + ' USDT\n'
+                message += 'Total balance currency: ' + self.round_number_price(new_balance_currency) + ' ' + self.currency
 
                 telegram_bot.send(message)
 
@@ -199,24 +543,24 @@ class Bot:
 
             if price_currency < stop_loss or take_profit < price_currency:
 
-                Kc.sell_currency(self.currency, Kc.get_balance_currency(self.currency))
+                self.sell_currency()
 
-                new_balance_usdt = Kc.get_balance_usdt()
-                new_balance_currency = Kc.get_balance_currency(self.currency)
+                new_balance_usdt = self.get_balance_usdt()
+                new_balance_currency = self.get_balance_currency()
 
                 message = 'Selling complete:\n\n'
 
                 if price_currency < stop_loss:
 
-                    message += 'Stop loss: selling currency in ' + Kc.round_number_price(self.currency, str(price_currency)) + ' USDT\n'
+                    message += 'Stop loss: selling currency in ' + self.round_number_price(str(price_currency)) + ' USDT\n'
 
                 if take_profit < price_currency:
 
-                    message += 'Take profit: selling currency in ' + Kc.round_number_price(self.currency, str(price_currency)) + ' USDT\n'
+                    message += 'Take profit: selling currency in ' + self.round_number_price(str(price_currency)) + ' USDT\n'
 
-                message += 'Market selling price: ' + Kc.round_number_price(self.currency, str((float(new_balance_usdt) - balance_usdt) / balance_currency)) + ' USDT\n'
-                message += 'Total balance usdt: ' + Kc.round_number_price(self.currency, new_balance_usdt) + ' USDT\n'
-                message += 'Total balance currency: ' + Kc.round_number_price(self.currency, new_balance_currency) + ' ' + self.currency
+                message += 'Market selling price: ' + self.round_number_price(str((float(new_balance_usdt) - balance_usdt) / balance_currency)) + ' USDT\n'
+                message += 'Total balance usdt: ' + self.round_number_price(new_balance_usdt) + ' USDT\n'
+                message += 'Total balance currency: ' + self.round_number_price(new_balance_currency) + ' ' + self.currency
 
                 telegram_bot.send(message)
 
