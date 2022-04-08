@@ -46,19 +46,19 @@ class Telegram:
 
         print(message)
 
-        self.exception_control_only_print(self.telegram_bot.send_message, output_channel = self.output_channel, message = message)
+        self.exception_control_only_print(self.telegram_bot.send_message, self.output_channel, message)
 
     
     def get_message_status(self):
 
-        data = self.exception_control(self.telegram_bot.get_chat, status_channel = self.status_channel)
+        data = self.exception_control(self.telegram_bot.get_chat, self.status_channel)
 
         return (data.pinned_message.text, data.pinned_message.message_id)
 
 
     def get_message_database(self):
 
-        data = self.exception_control(self.telegram_bot.get_chat, database_channel = self.database_channel)
+        data = self.exception_control(self.telegram_bot.get_chat, self.database_channel)
 
         return (data.pinned_message.text, data.pinned_message.message_id)
 
