@@ -225,8 +225,6 @@ class Bot:
 
 telegram_bot.send('Initializing bot...')
 
-ExceptionC.stop_bot()
-
 B = Bot()
 
 B.print_balance()
