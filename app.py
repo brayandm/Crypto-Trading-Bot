@@ -56,7 +56,7 @@ class Bot:
         
             except Exception as e:
 
-                telegram_bot.send(e)
+                telegram_bot.send(str(e))
 
                 telegram_bot.send('Function \'update_constants()\' failed... Attempting again')
 
@@ -79,7 +79,7 @@ class Bot:
 
             except Exception as e:
 
-                telegram_bot.send(e) 
+                telegram_bot.send(str(e)) 
 
                 telegram_bot.send('Function \'__init__()\' failed... Attempting again')
 
@@ -110,7 +110,7 @@ class Bot:
 
             except Exception as e:
 
-                telegram_bot.send(e)
+                telegram_bot.send(str(e))
 
                 telegram_bot.send('Function \'get_constant_round()\' failed... Attempting again')
 
@@ -190,7 +190,7 @@ class Bot:
 
                     except Exception as e:
                        
-                        telegram_bot.send(e)
+                        telegram_bot.send(str(e))
 
                         telegram_bot.send('Function \'get_order_list()\' failed... Attempting again')
 
@@ -200,7 +200,7 @@ class Bot:
 
             except Exception as e:
 
-                telegram_bot.send(e)
+                telegram_bot.send(str(e))
 
                 telegram_bot.send('Function \'buy_currency()\' failed... Attempting again')
 
@@ -235,7 +235,7 @@ class Bot:
 
                     except Exception as e:
                        
-                        telegram_bot.send(e)
+                        telegram_bot.send(str(e))
 
                         telegram_bot.send('Function \'get_order_list()\' failed... Attempting again')
 
@@ -245,7 +245,7 @@ class Bot:
 
             except Exception as e:
 
-                telegram_bot.send(e)
+                telegram_bot.send(str(e))
 
                 telegram_bot.send('Function \'sell_currency()\' failed... Attempting again')
 
@@ -264,7 +264,7 @@ class Bot:
 
             except Exception as e:
 
-                telegram_bot.send(e)
+                telegram_bot.send(str(e))
 
                 telegram_bot.send('Function \'get_balance_currency()\' failed... Attempting again')
 
@@ -291,7 +291,7 @@ class Bot:
 
             except Exception as e:
 
-                telegram_bot.send(e)
+                telegram_bot.send(str(e))
 
                 telegram_bot.send('Function \'get_balance_usdt()\' failed... Attempting again')
 
@@ -318,7 +318,7 @@ class Bot:
 
             except Exception as e:
 
-                telegram_bot.send(e)
+                telegram_bot.send(str(e))
 
                 telegram_bot.send('Function \'get_price_currency()\' failed... Attempting again')
 

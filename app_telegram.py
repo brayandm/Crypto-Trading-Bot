@@ -37,7 +37,7 @@ class Telegram:
 
             except Exception as e:
 
-                self.send(e)
+                self.send(str(e))
 
                 self.send(str(function) + ' failed... Attempting again')
 
