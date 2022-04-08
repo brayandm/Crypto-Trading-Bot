@@ -5,7 +5,7 @@ from kucoin.client import Market
 from kucoin.client import Trade
 from kucoin.client import User
 
-from telegram import Telegram
+from app_telegram import Telegram
 
 tlg = Telegram()
 
