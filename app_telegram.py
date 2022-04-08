@@ -63,4 +63,4 @@ class Telegram:
         return (data.pinned_message.text, data.pinned_message.message_id)
 
 
-telegram = Telegram()
+telegram_bot = Telegram()
