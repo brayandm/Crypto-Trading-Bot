@@ -5,9 +5,7 @@ from kucoin.client import Market
 from kucoin.client import Trade
 from kucoin.client import User
 
-from app_telegram import Telegram
-
-tlg = Telegram()
+from app_telegram import telegram
 
 class Bot:
     
@@ -36,7 +34,7 @@ class Bot:
 
             try:
 
-                data = json.loads(tlg.get_message_database()[0])
+                data = json.loads(telegram.get_message_database()[0])
 
                 self.currency = data['currency']
                 self.symbol = self.currency + '-USDT'
@@ -52,22 +50,22 @@ class Bot:
 
                     message += var + ' = ' + data[var] + '\n'
 
-                tlg.send(message)
+                telegram.send(message)
 
                 break
         
             except Exception as e:
 
-                tlg.send(e)
+                telegram.send(e)
 
-                tlg.send('Function \'update_constants()\' failed... Attempting again')
+                telegram.send('Function \'update_constants()\' failed... Attempting again')
 
                 self.update_status()
 
 
     def __init__(self):
 
-        self.last_message_id_status = tlg.get_message_status()[1]
+        self.last_message_id_status = telegram.get_message_status()[1]
         
         while True:
 
@@ -81,9 +79,9 @@ class Bot:
 
             except Exception as e:
 
-                tlg.send(e) 
+                telegram.send(e) 
 
-                tlg.send('Function \'__init__()\' failed... Attempting again')
+                telegram.send('Function \'__init__()\' failed... Attempting again')
 
                 self.update_status()
 
@@ -102,7 +100,7 @@ class Bot:
 
                         return (len(bucket['baseIncrement']) - 2, len(bucket['priceIncrement']) - 2)
             
-                tlg.send('Symbol not found... Bot stopped')
+                telegram.send('Symbol not found... Bot stopped')
 
                 while True:
 
@@ -112,9 +110,9 @@ class Bot:
 
             except Exception as e:
 
-                tlg.send(e)
+                telegram.send(e)
 
-                tlg.send('Function \'get_constant_round()\' failed... Attempting again')
+                telegram.send('Function \'get_constant_round()\' failed... Attempting again')
 
                 self.update_status()
 
@@ -160,7 +158,7 @@ class Bot:
 
         if float(self.get_balance_usdt()) < self.investment_order_limit:
 
-            tlg.send('Insufficient balance to invest... Bot stopped')
+            telegram.send('Insufficient balance to invest... Bot stopped')
 
             while True:
 
@@ -182,7 +180,7 @@ class Bot:
 
                         if len(data['items']) != 0:
 
-                            tlg.send('Buying currency...')
+                            telegram.send('Buying currency...')
 
                             self.update_status()
 
@@ -192,9 +190,9 @@ class Bot:
 
                     except Exception as e:
                        
-                        tlg.send(e)
+                        telegram.send(e)
 
-                        tlg.send('Function \'get_order_list()\' failed... Attempting again')
+                        telegram.send('Function \'get_order_list()\' failed... Attempting again')
 
                         self.update_status()
 
@@ -202,9 +200,9 @@ class Bot:
 
             except Exception as e:
 
-                tlg.send(e)
+                telegram.send(e)
 
-                tlg.send('Function \'buy_currency()\' failed... Attempting again')
+                telegram.send('Function \'buy_currency()\' failed... Attempting again')
 
                 self.update_status()
 
@@ -227,7 +225,7 @@ class Bot:
 
                         if len(data['items']) != 0:
 
-                            tlg.send('Selling currency...')
+                            telegram.send('Selling currency...')
 
                             self.update_status()
 
@@ -237,9 +235,9 @@ class Bot:
 
                     except Exception as e:
                        
-                        tlg.send(e)
+                        telegram.send(e)
 
-                        tlg.send('Function \'get_order_list()\' failed... Attempting again')
+                        telegram.send('Function \'get_order_list()\' failed... Attempting again')
 
                         self.update_status()
 
@@ -247,9 +245,9 @@ class Bot:
 
             except Exception as e:
 
-                tlg.send(e)
+                telegram.send(e)
 
-                tlg.send('Function \'sell_currency()\' failed... Attempting again')
+                telegram.send('Function \'sell_currency()\' failed... Attempting again')
 
                 self.update_status()
 
@@ -266,9 +264,9 @@ class Bot:
 
             except Exception as e:
 
-                tlg.send(e)
+                telegram.send(e)
 
-                tlg.send('Function \'get_balance_currency()\' failed... Attempting again')
+                telegram.send('Function \'get_balance_currency()\' failed... Attempting again')
 
                 self.update_status()
         
@@ -293,9 +291,9 @@ class Bot:
 
             except Exception as e:
 
-                tlg.send(e)
+                telegram.send(e)
 
-                tlg.send('Function \'get_balance_usdt()\' failed... Attempting again')
+                telegram.send('Function \'get_balance_usdt()\' failed... Attempting again')
 
                 self.update_status()
 
@@ -320,9 +318,9 @@ class Bot:
 
             except Exception as e:
 
-                tlg.send(e)
+                telegram.send(e)
 
-                tlg.send('Function \'get_price_currency()\' failed... Attempting again')
+                telegram.send('Function \'get_price_currency()\' failed... Attempting again')
 
                 self.update_status()
 
@@ -371,7 +369,7 @@ class Bot:
         message += 'Total balance currency: ' + self.round_number_price(balance_currency) + ' ' + self.currency + '\n'
         message += 'Total balance: ' + self.round_number_price(str(float(balance_usdt) + float(balance_currency) * float(price_currency))) + ' USDT'
 
-        tlg.send(message)
+        telegram.send(message)
 
     
     def investment_status(self):
@@ -395,7 +393,7 @@ class Bot:
 
         if balance_currency * price_currency < self.eps:
 
-            tlg.send('Investment status:\n\n\"No investment\"')
+            telegram.send('Investment status:\n\n\"No investment\"')
 
         else:
 
@@ -421,12 +419,12 @@ class Bot:
 
                 message += 'Current gain: +' + self.round_number_price(str(current_gain)) + ' USDT'
             
-            tlg.send(message)
+            telegram.send(message)
 
 
     def update_status(self):
 
-        (message, message_id) = tlg.get_message_status()
+        (message, message_id) = telegram.get_message_status()
 
         if message_id == self.last_message_id_status and message.lower() != 'stop':
 
@@ -438,7 +436,7 @@ class Bot:
 
         if message == 'price':
 
-            tlg.send('Currency price: ' + self.get_price_currency() + ' USDT')
+            telegram.send('Currency price: ' + self.get_price_currency() + ' USDT')
 
         elif message == 'buynow':
 
@@ -457,11 +455,11 @@ class Bot:
                 message += 'Total balance usdt: ' + self.round_number_price(new_balance_usdt) + ' USDT\n'
                 message += 'Total balance currency: ' + self.round_number_price(new_balance_currency) + ' ' + self.currency
 
-                tlg.send(message)
+                telegram.send(message)
             
             else:
 
-                tlg.send('Buying canceled... There is already an investment')
+                telegram.send('Buying canceled... There is already an investment')
         
         elif message == 'sellnow':
 
@@ -482,11 +480,11 @@ class Bot:
                 message += 'Total balance usdt: ' + self.round_number_price(new_balance_usdt) + ' USDT\n'
                 message += 'Total balance currency: ' + self.round_number_price(new_balance_currency) + ' ' + self.currency
 
-                tlg.send(message)
+                telegram.send(message)
             
             else:
 
-                tlg.send('Selling canceled... There is no investment right now')
+                telegram.send('Selling canceled... There is no investment right now')
         
         elif message == 'investment':
 
@@ -498,15 +496,15 @@ class Bot:
 
         elif message == 'stop':
 
-            tlg.send('Bot stopped manually... Waiting')
+            telegram.send('Bot stopped manually... Waiting')
 
             while True:
 
-                if tlg.get_message_status()[0].lower() == 'start':
+                if telegram.get_message_status()[0].lower() == 'start':
 
                     self.update_constants()
 
-                    tlg.send('Bot started manually...')
+                    telegram.send('Bot started manually...')
 
                     break
 
@@ -535,7 +533,7 @@ class Bot:
                 message += 'Total balance usdt: ' + self.round_number_price(new_balance_usdt) + ' USDT\n'
                 message += 'Total balance currency: ' + self.round_number_price(new_balance_currency) + ' ' + self.currency
 
-                tlg.send(message)
+                telegram.send(message)
 
         else:
 
@@ -564,10 +562,10 @@ class Bot:
                 message += 'Total balance usdt: ' + self.round_number_price(new_balance_usdt) + ' USDT\n'
                 message += 'Total balance currency: ' + self.round_number_price(new_balance_currency) + ' ' + self.currency
 
-                tlg.send(message)
+                telegram.send(message)
 
 
-tlg.send('Initializing bot...')
+telegram.send('Initializing bot...')
 
 B = Bot()
 

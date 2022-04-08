@@ -2,7 +2,6 @@ import os
 
 from telegram import Bot
 
-
 class Telegram:
 
     def __init__(self):
@@ -13,58 +12,55 @@ class Telegram:
         self.database_channel = os.environ['database_channel']
 
 
-    def send(self, message):
-
-        print(message)
+    def exception_control_only_print(function, **kwargs):
 
         while True:
 
             try:
 
-                self.telegram_bot.send_message(self.output_channel, message)
-
-                break
+                return function(**kwargs)
 
             except Exception as e:
 
                 print(e)
 
-                print('Function \'send()\' failed... Attempting again')
+                print('Function \'' + str(function)[10:-19] + '()' + '\' failed... Attempting again')
 
-    
-    def get_message_status(self):
+
+    def exception_control(self, function, **kwargs):
 
         while True:
 
             try:
 
-                data = self.telegram_bot.get_chat(self.status_channel)
-
-                break
+                return function(**kwargs)
 
             except Exception as e:
 
                 self.send(e)
 
-                self.send('Function \'get_message_status()\' failed... Attempting again')
+                self.send('Function \'' + str(function)[10:-19] + '()' + '\' failed... Attempting again')
+
+
+    def send(self, message):
+
+        print(message)
+
+        self.exception_control_only_print(self.telegram_bot.send_message, output_channel = self.output_channel, message = message)
+
+    
+    def get_message_status(self):
+
+        data = self.exception_control(self.telegram_bot.get_chat, status_channel = self.status_channel)
 
         return (data.pinned_message.text, data.pinned_message.message_id)
 
 
     def get_message_database(self):
 
-        while True:
-
-            try:
-
-                data = self.telegram_bot.get_chat(self.database_channel)
-
-                break
-
-            except Exception as e:
-
-                self.send(e)
-
-                self.send('Function \'get_message_database()\' failed... Attempting again')
+        data = self.exception_control(self.telegram_bot.get_chat, database_channel = self.database_channel)
 
         return (data.pinned_message.text, data.pinned_message.message_id)
+
+
+telegram = Telegram()
