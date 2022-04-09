@@ -135,7 +135,7 @@ class Kucoin:
         
         while True:
 
-            if ExceptionC.with_send(self.client_trade.get_order_list, status = 'active')['items'] == 0:
+            if len(ExceptionC.with_send(self.client_trade.get_order_list, status = 'active')['items']) == 0:
 
                 break
             
@@ -156,7 +156,7 @@ class Kucoin:
 
         while True:
 
-            if ExceptionC.with_send(self.client_trade.get_order_list, status = 'active')['items'] == 0:
+            if len(ExceptionC.with_send(self.client_trade.get_order_list, status = 'active')['items']) == 0:
 
                 break
             
