@@ -7,6 +7,8 @@ class Telegram:
 
     def __init__(self):
 
+        self.valid_ids = os.environ['valid_ids'].split(',')
+        
         self.telegram_bot = Bot(os.environ['bot_token'])
         self.output_channel = os.environ['output_channel']
         self.status_channel = os.environ['status_channel']
@@ -21,8 +23,16 @@ class Telegram:
     async def listen(self):
         self.telegram_updater.start_polling()
 
+    def validate_user(self, id):
+
+        for valid_id in self.valid_ids:
+            if int(id) == int(valid_id):
+                return True
+        return False
 
     def command_start(self, update, context):
+        if not self.validate_user(update.message.chat_id): return
+        
         update.message.reply_text('Iniciado')
 
     def exception_control_only_print(self, function, **kwargs):
