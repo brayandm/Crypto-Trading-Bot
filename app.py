@@ -230,15 +230,11 @@ B = Bot()
 
 B.print_balance()
 
-async def test_func():
-    print('Hola')
-    await asyncio.sleep(1)
-
 async def start_loop():
+
     while True:
         B.update()
-
-        await asyncio.sleep(1)
+        await asyncio.sleep(0)
 
 loop = asyncio.get_event_loop()
 loop.create_task(start_loop())
