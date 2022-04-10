@@ -1,4 +1,5 @@
 import json
+import asyncio
 
 from app_kucoin import Kc
 from app_telegram import telegram_bot
@@ -229,6 +230,17 @@ B = Bot()
 
 B.print_balance()
 
-while True:
+async def test_func():
+    print('Hola')
+    await asyncio.sleep(1)
 
-    B.update()
+async def start_loop():
+    while True:
+        B.update()
+
+        await asyncio.sleep(1)
+
+loop = asyncio.get_event_loop()
+loop.create_task(start_loop())
+loop.create_task(telegram_bot.listen())
+loop.run_forever()

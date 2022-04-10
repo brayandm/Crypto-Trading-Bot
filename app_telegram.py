@@ -1,6 +1,7 @@
 import os
 
 from telegram import Bot
+from telegram.ext import Updater, CommandHandler
 
 class Telegram:
 
@@ -11,6 +12,18 @@ class Telegram:
         self.status_channel = os.environ['status_channel']
         self.database_channel = os.environ['database_channel']
 
+        self.telegram_updater = Updater(os.environ['bot_token'], use_context = True)
+        self.telegram_handler = self.telegram_updater.dispatcher
+
+        self.telegram_handler.add_handler(CommandHandler('start', self.command_start))
+
+
+    async def listen(self):
+        self.telegram_updater.start_polling()
+
+
+    def command_start(self, update, context):
+        update.message.reply_text('Iniciado')
 
     def exception_control_only_print(self, function, **kwargs):
 
