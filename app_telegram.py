@@ -39,14 +39,18 @@ class Telegram:
 
 
     async def listen(self):
+
         self.telegram_updater.start_polling()
 
 
     def validate_user(self, id):
 
         for valid_id in self.valid_ids:
+
             if int(id) == int(valid_id):
+
                 return True
+
         return False
 
 
@@ -55,6 +59,7 @@ class Telegram:
         if not self.validate_user(update.message.chat_id): return
 
         reply_markup = ReplyKeyboardMarkup(self.keyboards['main-menu'], resize_keyboard = True)
+
         update.message.reply_text('Welcome to this bot', reply_markup = reply_markup)
 
 
@@ -63,6 +68,7 @@ class Telegram:
         if not self.validate_user(update.message.chat_id): return
 
         reply_markup = ReplyKeyboardMarkup(self.keyboards['wallets'], resize_keyboard = True)
+
         update.message.reply_text('Which wallet do you want to check?', reply_markup = reply_markup)
 
 
@@ -73,6 +79,7 @@ class Telegram:
         message = update.message.text
 
         reply_markup = ReplyKeyboardMarkup(self.keyboards['wallet-operations'], resize_keyboard = True)
+
         update.message.reply_text('Select the operation to execute on: <b>' + message + '</b>', reply_markup = reply_markup, parse_mode = 'HTML')
 
 
@@ -95,6 +102,7 @@ class Telegram:
         if not self.validate_user(update.message.chat_id): return
 
         reply_markup = ReplyKeyboardMarkup(self.keyboards['bots'], resize_keyboard = True)
+
         update.message.reply_text('Which bot do you want to check?', reply_markup = reply_markup)
 
 
@@ -105,6 +113,7 @@ class Telegram:
         message = update.message.text
 
         reply_markup = ReplyKeyboardMarkup(self.keyboards['bot-operations'], resize_keyboard = True)
+        
         update.message.reply_text('Select the operation to execute on: <b>' + message + '</b>', reply_markup = reply_markup, parse_mode = 'HTML')
 
 
