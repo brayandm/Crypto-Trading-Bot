@@ -7,8 +7,9 @@ from app_exception_control import ExceptionC
 
 class Kucoin:
 
-    def __init__(self, api_key = '', api_secret = '', api_passphrase = '', is_sandbox = False):
+    def __init__(self, wallet_name, api_key = '', api_secret = '', api_passphrase = '', is_sandbox = False):
 
+        self.wallet_name = wallet_name
         self.client_market = Market()
         self.client_trade = Trade(key=api_key, secret=api_secret, passphrase=api_passphrase, is_sandbox=is_sandbox)
         self.client_user = User(key=api_key, secret=api_secret, passphrase=api_passphrase, is_sandbox=is_sandbox)
@@ -32,9 +33,9 @@ class Kucoin:
 
                 return (len(bucket['baseIncrement']) - 2, len(bucket['priceIncrement']) - 2)
     
-        telegram_bot.send('Symbol not found...')
+        telegram_bot.send('Symbol not found in ' + self.wallet_name + '...')
 
-        telegram_bot.send('Bot stopped automatically...')
+        telegram_bot.send('Bot in ' + self.wallet_name + ' stopped automatically...')
 
         while True:
 
@@ -138,9 +139,9 @@ class Kucoin:
 
         if float(self.get_balance_usdt()) < float(funds):
 
-            telegram_bot.send('Insufficient usdt balance to buy...')
+            telegram_bot.send('Insufficient usdt balance in ' + self.wallet_name + ' to buy...')
 
-            telegram_bot.send('Bot stopped automatically...')
+            telegram_bot.send('Bot in ' + self.wallet_name + ' stopped automatically...')
 
             while True:
 
@@ -154,16 +155,16 @@ class Kucoin:
 
                 break
             
-            telegram_bot.send('Buying currency...')
+            telegram_bot.send('Buying currency in ' + self.wallet_name + '...')
 
 
     def sell_currency(self, currency, size):
 
         if float(self.get_balance_currency(currency)) < float(size):
 
-            telegram_bot.send('Insufficient currency balance to sell...')
+            telegram_bot.send('Insufficient currency balance in ' + self.wallet_name + ' to sell...')
 
-            telegram_bot.send('Bot stopped automatically...')
+            telegram_bot.send('Bot in ' + self.wallet_name + ' stopped automatically...')
 
             while True:
 
@@ -177,4 +178,4 @@ class Kucoin:
 
                 break
             
-            telegram_bot.send('Selling currency...')
+            telegram_bot.send('Selling currency in ' + self.wallet_name + '...')

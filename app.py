@@ -11,7 +11,7 @@ api_secret = os.environ['api_secret']
 api_passphrase = os.environ['api_passphrase']
 is_sandbox = True if os.environ['is_sandbox'] == 'yes' else False
 
-wallet1 = Kucoin(api_key, api_secret, api_passphrase, is_sandbox)
+wallet1 = Kucoin('KcWallet', api_key, api_secret, api_passphrase, is_sandbox)
 bot1 = Bot('Robot', wallet1)
 telegram_commands = TelegramCommands(bot1, wallet1)
 

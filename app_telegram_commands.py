@@ -12,8 +12,8 @@ class TelegramCommands:
 
         self.keyboards = {
             'main-menu': [['💰Wallets'], ['🤖Bots'], ['❓Help']],
-            'wallets': [['Wallet #1'], ['⬅️Back to menu']],
-            'wallet1-operations': [['⚖️Balance Wallet #1', '📖History Wallet #1'], ['⬅️Back to wallets']],
+            'wallets': [[self.wallet1.wallet_name], ['⬅️Back to menu']],
+            'wallet1-operations': [['⚖️Balance ' + self.wallet1.wallet_name, '📖History ' + self.wallet1.wallet_name], ['⬅️Back to wallets']],
             'bots': [[self.bot1.bot_name], ['⬅️Back to menu']],
             'bot1-operations': [['✅Start ' + self.bot1.bot_name, '🚫Stop ' + self.bot1.bot_name], ['⬅️Back to bots']],
         }
@@ -26,9 +26,9 @@ class TelegramCommands:
         self.telegram_handler.add_handler(CommandHandler('start', self.command_start))
 
         self.telegram_handler.add_handler(MessageHandler(Filters.text('💰Wallets'), self.show_wallets))
-        self.telegram_handler.add_handler(MessageHandler(Filters.text('Wallet #1'), self.wallet1_operations))
-        self.telegram_handler.add_handler(MessageHandler(Filters.text('⚖️Balance Wallet #1'), self.wallet1_balance))
-        self.telegram_handler.add_handler(MessageHandler(Filters.text('📖History Wallet #1'), self.wallet1_history))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text(self.wallet1.wallet_name), self.wallet1_operations))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('⚖️Balance ' + self.wallet1.wallet_name), self.wallet1_balance))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('📖History ' + self.wallet1.wallet_name), self.wallet1_history))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('🤖Bots'), self.show_bots))
         self.telegram_handler.add_handler(MessageHandler(Filters.text(self.bot1.bot_name), self.bot1_operations))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('✅Start ' + self.bot1.bot_name), self.bot1_start))
@@ -60,7 +60,7 @@ class TelegramCommands:
 
         reply_markup = ReplyKeyboardMarkup(self.keyboards['main-menu'], resize_keyboard = True)
 
-        update.message.reply_text('Welcome to this bot', reply_markup = reply_markup)
+        update.message.reply_text('Welcome to the Jungle', reply_markup = reply_markup)
 
 
     def show_wallets(self, update, context):
@@ -89,7 +89,7 @@ class TelegramCommands:
 
         data = self.wallet1.get_balance_total()
 
-        message = 'Your balance is:\n\n'
+        message = 'Your balance in ' + self.wallet1.wallet_name + ' is:\n\n'
 
         for key in data:
 
@@ -102,7 +102,7 @@ class TelegramCommands:
 
         if not self.validate_user(update.message.chat_id): return
 
-        update.message.reply_text('Your order history is clear')
+        update.message.reply_text('Your order history in ' + self.wallet1.wallet_name + ' is clear')
 
 
     def show_bots(self, update, context):

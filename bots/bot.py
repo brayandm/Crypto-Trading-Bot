@@ -87,7 +87,8 @@ class Bot:
         balance_currency = self.Kc.get_balance_currency(self.currency)
         price_currency = self.Kc.get_price_currency(self.currency)
 
-        message = 'Total balance usdt: ' + self.Kc.round_number_price(self.currency, balance_usdt) + ' USDT\n'
+        message = self.Kc.wallet_name + ' balance:\n\n'
+        message += 'Total balance usdt: ' + self.Kc.round_number_price(self.currency, balance_usdt) + ' USDT\n'
         message += 'Total balance currency: ' + self.Kc.round_number_price(self.currency, balance_currency) + ' ' + self.currency + '\n'
         message += 'Total balance: ' + self.Kc.round_number_price(self.currency, str(float(balance_usdt) + float(balance_currency) * float(price_currency))) + ' USDT'
 
