@@ -1,5 +1,6 @@
 import json
 import asyncio
+import os
 
 from app_kucoin import Kc
 from app_telegram import telegram_bot
@@ -21,7 +22,7 @@ class Bot:
 
         try:
 
-            self.currency = data['currency']
+            self.currency = ('BTC' if os.environ['is_sandbox'] == 'yes' else data['currency'])
             self.symbol = self.currency + '-USDT'
             self.investment_order_limit = float(data['investment_order_limit'])
             self.take_profit_percent = float(data['take_profit_percent'])
