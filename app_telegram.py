@@ -38,7 +38,7 @@ class Telegram:
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⬅️Back to bots'), self.show_bots))
 
 
-    async def listen(self):
+    def listen(self):
 
         self.telegram_updater.start_polling()
 

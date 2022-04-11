@@ -1,5 +1,5 @@
+import threading
 import json
-import asyncio
 import os
 
 from app_kucoin import Kc
@@ -232,16 +232,18 @@ B = Bot()
 B.print_balance()
 
 
-async def start_loop():
+def start_loop():
 
     while True:
 
         B.update()
 
-        await asyncio.sleep(0)
 
+thread1 = threading.Thread(target=start_loop)
+thread2 = threading.Thread(target=telegram_bot.listen)
 
-loop = asyncio.get_event_loop()
-loop.create_task(start_loop())
-loop.create_task(telegram_bot.listen())
-loop.run_forever()
+thread1.start()
+thread2.start()
+
+thread1.join()
+thread2.join()
