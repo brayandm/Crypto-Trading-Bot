@@ -100,6 +100,17 @@ class Kucoin:
             return str(0)
 
 
+    def get_balance_total(self):
+
+        data = {}
+
+        for bucket in ExceptionC.with_send(self.client_user.get_account_list, account_type = 'trade'):
+
+            data[bucket['currency']] = bucket['balance']
+
+        return data
+
+
     def get_price_currency(self, currency):
 
         return ExceptionC.with_send(self.client_market.get_24h_stats, symbol = self.get_symbol_from_currency(currency))['last']

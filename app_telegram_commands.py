@@ -86,8 +86,16 @@ class TelegramCommands:
     def show_balance(self, update, context):
 
         if not self.validate_user(update.message.chat_id): return
+
+        data = self.wallet1.get_balance_total()
+
+        message = 'Your balance is:\n\n'
+
+        for key in data:
+
+            message += data[key] + ' ' + key + '\n'
     
-        update.message.reply_text('Your balance is ' + self.wallet1.get_balance_usdt() + ' USDT')
+        update.message.reply_text(message)
 
 
     def show_history(self, update, context):
