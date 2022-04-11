@@ -14,7 +14,7 @@ class TelegramCommands:
             'wallets': [['Wallet #1', "Wallet #2"], ["Wallet #3", 'Wallet #4'], ['⬅️Back to menu']],
             'wallet-operations': [['⚖️Balance', '📖History'], ['⬅️Back to wallets']],
             'bots': [['Bot #1'], ['⬅️Back to menu']],
-            'bot1-operations': [['Start Bot #1', 'Stop Bot #1'], ['⬅️Back to bots']],
+            'bot1-operations': [['✅Start Bot #1', '🚫Stop Bot #1'], ['⬅️Back to bots']],
         }
 
         self.valid_ids = os.environ['valid_ids'].split(',')
