@@ -39,7 +39,11 @@ class Bot:
 
             telegram_bot.send('There was an error extracting the ' + self.bot_name + ' constants in the database...')
 
-            ExceptionC.stop_bot()
+            telegram_bot.send(self.bot_name + ' stopped automatically...')
+
+            while True:
+
+                pass
 
 
     def __init__(self, bot_name, kucoin_wallet):

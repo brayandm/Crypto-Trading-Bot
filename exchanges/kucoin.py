@@ -34,7 +34,11 @@ class Kucoin:
     
         telegram_bot.send('Symbol not found...')
 
-        ExceptionC.stop_bot()
+        telegram_bot.send('Bot stopped automatically...')
+
+        while True:
+
+            pass
 
 
     def round_number(self, number, precision):
@@ -136,7 +140,11 @@ class Kucoin:
 
             telegram_bot.send('Insufficient usdt balance to buy...')
 
-            ExceptionC.stop_bot()
+            telegram_bot.send('Bot stopped automatically...')
+
+            while True:
+
+                pass
 
         ExceptionC.with_send(self.client_trade.create_market_order, symbol = self.get_symbol_from_currency(currency), side = 'buy', funds = self.round_number_price(currency, funds))
         
@@ -148,8 +156,6 @@ class Kucoin:
             
             telegram_bot.send('Buying currency...')
 
-            ExceptionC.check_stop()
-
 
     def sell_currency(self, currency, size):
 
@@ -157,7 +163,11 @@ class Kucoin:
 
             telegram_bot.send('Insufficient currency balance to sell...')
 
-            ExceptionC.stop_bot()
+            telegram_bot.send('Bot stopped automatically...')
+
+            while True:
+
+                pass
 
         ExceptionC.with_send(self.client_trade.create_market_order, symbol = self.get_symbol_from_currency(currency), side = 'sell', size = self.round_number_base(currency, size))
 
@@ -168,5 +178,3 @@ class Kucoin:
                 break
             
             telegram_bot.send('Selling currency...')
-
-            ExceptionC.check_stop()

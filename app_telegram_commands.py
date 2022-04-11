@@ -14,8 +14,8 @@ class TelegramCommands:
             'main-menu': [['💰Wallets'], ['🤖Bots'], ['❓Help']],
             'wallets': [['Wallet #1'], ['⬅️Back to menu']],
             'wallet1-operations': [['⚖️Balance Wallet #1', '📖History Wallet #1'], ['⬅️Back to wallets']],
-            'bots': [['Bot #1'], ['⬅️Back to menu']],
-            'bot1-operations': [['✅Start Bot #1', '🚫Stop Bot #1'], ['⬅️Back to bots']],
+            'bots': [[self.bot1.bot_name], ['⬅️Back to menu']],
+            'bot1-operations': [['✅Start ' + self.bot1.bot_name, '🚫Stop ' + self.bot1.bot_name], ['⬅️Back to bots']],
         }
 
         self.valid_ids = os.environ['valid_ids'].split(',')
@@ -30,9 +30,9 @@ class TelegramCommands:
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⚖️Balance Wallet #1'), self.wallet1_balance))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('📖History Wallet #1'), self.wallet1_history))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('🤖Bots'), self.show_bots))
-        self.telegram_handler.add_handler(MessageHandler(Filters.text('Bot #1'), self.bot1_operations))
-        self.telegram_handler.add_handler(MessageHandler(Filters.text('✅Start Bot #1'), self.bot1_start))
-        self.telegram_handler.add_handler(MessageHandler(Filters.text('🚫Stop Bot #1'), self.bot1_stop))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text(self.bot1.bot_name), self.bot1_operations))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('✅Start ' + self.bot1.bot_name), self.bot1_start))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('🚫Stop ' + self.bot1.bot_name), self.bot1_stop))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⬅️Back to menu'), self.command_start))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⬅️Back to wallets'), self.show_wallets))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⬅️Back to bots'), self.show_bots))
@@ -122,11 +122,11 @@ class TelegramCommands:
 
             self.bot1.turn_on = True
 
-            update.message.reply_text('Bot started manually...')
+            update.message.reply_text(self.bot1.bot_name + ' started manually...')
         
         else:
 
-            update.message.reply_text('Bot is already started...')
+            update.message.reply_text(self.bot1.bot_name + ' is already started...')
 
 
     def bot1_stop(self, update, context):
@@ -137,11 +137,11 @@ class TelegramCommands:
 
             self.bot1.turn_on = False
 
-            update.message.reply_text('Bot stopped manually... Waiting')
+            update.message.reply_text(self.bot1.bot_name + ' stopped manually... Waiting')
 
         else:
 
-            update.message.reply_text('Bot is already stopped... Waiting')
+            update.message.reply_text(self.bot1.bot_name + ' is already stopped... Waiting')
 
 
     def bot1_operations(self, update, context):
