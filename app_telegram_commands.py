@@ -7,6 +7,8 @@ class TelegramCommands:
 
     def __init__(self, bot1):
 
+        self.bot1 = bot1
+
         self.keyboards = {
             'main-menu': [['💰Wallets'], ['🤖Bots'], ['📑Info']],
             'wallets': [['Wallet #1', "Wallet #2"], ["Wallet #3", 'Wallet #4'], ['⬅️Back to menu']],
