@@ -46,7 +46,7 @@ class Bot:
 
         telegram_bot.send('Initializing bot...')
 
-        self.self.Kc = kucoin_wallet
+        self.Kc = kucoin_wallet
 
         self.last_message_id_status = telegram_bot.get_message_status()[1]
         
