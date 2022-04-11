@@ -11,7 +11,7 @@ class TelegramCommands:
         self.wallet1 = wallet1
 
         self.keyboards = {
-            'main-menu': [['💰Wallets'], ['🤖Bots'], ['📑Info']],
+            'main-menu': [['💰Wallets'], ['🤖Bots'], ['❓Help']],
             'wallets': [['Wallet #1'], ['⬅️Back to menu']],
             'wallet1-operations': [['⚖️Balance Wallet #1', '📖History Wallet #1'], ['⬅️Back to wallets']],
             'bots': [['Bot #1'], ['⬅️Back to menu']],
