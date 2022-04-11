@@ -46,6 +46,8 @@ class Bot:
 
         telegram_bot.send('Initializing bot...')
 
+        self.turn_on = True
+
         self.Kc = kucoin_wallet
 
         self.last_message_id_status = telegram_bot.get_message_status()[1]
@@ -180,6 +182,17 @@ class Bot:
 
 
     def update(self):
+
+        if self.turn_on == False:
+
+            telegram_bot.send('Bot stopped manually... Waiting')
+
+            while self.turn_on == False:
+
+                pass
+
+            telegram_bot.send('Bot started manually...')
+            
 
         self.update_status()        
                     

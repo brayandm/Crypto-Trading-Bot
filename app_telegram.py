@@ -2,6 +2,8 @@ import os
 
 from telegram import Bot, ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from app import wallet
+from app import bot
 
 class Telegram:
 
@@ -11,8 +13,8 @@ class Telegram:
             'main-menu': [['💰Wallets'], ['🤖Bots'], ['📑Info']],
             'wallets': [['Wallet #1', "Wallet #2"], ["Wallet #3", 'Wallet #4'], ['⬅️Back to menu']],
             'wallet-operations': [['⚖️Balance', '📖History'], ['⬅️Back to wallets']],
-            'bots': [['Bot #1', "Bot #2"], ["Bot #3", 'Bot #4'], ['⬅️Back to menu']],
-            'bot-operations': [['Operation 1', 'Operation 2'], ['⬅️Back to bots']],
+            'bots': [['Bot #1'], ['⬅️Back to menu']],
+            'bot1-operations': [['Start Bot #1', 'Stop Bot #1'], ['⬅️Back to bots']],
         }
 
         self.valid_ids = os.environ['valid_ids'].split(',')
@@ -34,7 +36,9 @@ class Telegram:
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⚖️Balance'), self.show_balance))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('📖History'), self.show_history))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('🤖Bots'), self.show_bots))
-        self.telegram_handler.add_handler(MessageHandler(Filters.regex('Bot #\d+'), self.bot_operations))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('Bot #1'), self.bot1_operations))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('Start Bot #1'), self.bot1_start))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('Stop Bot #1'), self.bot1_stop))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⬅️Back to bots'), self.show_bots))
 
 
@@ -106,13 +110,43 @@ class Telegram:
         update.message.reply_text('Which bot do you want to check?', reply_markup = reply_markup)
 
 
-    def bot_operations(self, update, context):
+    def bot1_start(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+
+        if bot.turn_on == False:
+
+            bot.turn_on = True
+
+            update.message.reply_text('Bot started manually...')
+        
+        else:
+
+            update.message.reply_text('Bot is already started...')
+
+
+    def bot1_stop(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+
+        if bot.turn_on == True:
+
+            bot.turn_on = False
+
+            update.message.reply_text('Bot stopped manually... Waiting')
+
+        else:
+
+            update.message.reply_text('Bot is already stopped... Waiting')
+
+
+    def bot1_operations(self, update, context):
 
         if not self.validate_user(update.message.chat_id): return
 
         message = update.message.text
 
-        reply_markup = ReplyKeyboardMarkup(self.keyboards['bot-operations'], resize_keyboard = True)
+        reply_markup = ReplyKeyboardMarkup(self.keyboards['bot1-operations'], resize_keyboard = True)
         
         update.message.reply_text('Select the operation to execute on: <b>' + message + '</b>', reply_markup = reply_markup, parse_mode = 'HTML')
 
