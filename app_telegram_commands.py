@@ -32,8 +32,8 @@ class TelegramCommands:
         self.telegram_handler.add_handler(MessageHandler(Filters.text('📖History'), self.show_history))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('🤖Bots'), self.show_bots))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('Bot #1'), self.bot1_operations))
-        self.telegram_handler.add_handler(MessageHandler(Filters.text('Start Bot #1'), self.bot1_start))
-        self.telegram_handler.add_handler(MessageHandler(Filters.text('Stop Bot #1'), self.bot1_stop))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('✅Start Bot #1'), self.bot1_start))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('🚫Stop Bot #1'), self.bot1_stop))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⬅️Back to bots'), self.show_bots))
 
 
