@@ -5,14 +5,15 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 class TelegramCommands:
 
-    def __init__(self, bot1):
+    def __init__(self, bot1, wallet1):
 
         self.bot1 = bot1
+        self.wallet1 = wallet1
 
         self.keyboards = {
             'main-menu': [['💰Wallets'], ['🤖Bots'], ['📑Info']],
-            'wallets': [['Wallet #1', "Wallet #2"], ["Wallet #3", 'Wallet #4'], ['⬅️Back to menu']],
-            'wallet-operations': [['⚖️Balance', '📖History'], ['⬅️Back to wallets']],
+            'wallets': [['Wallet #1'], ['⬅️Back to menu']],
+            'wallet1-operations': [['⚖️Balance', '📖History'], ['⬅️Back to wallets']],
             'bots': [['Bot #1'], ['⬅️Back to menu']],
             'bot1-operations': [['✅Start Bot #1', '🚫Stop Bot #1'], ['⬅️Back to bots']],
         }
@@ -26,7 +27,7 @@ class TelegramCommands:
 
         self.telegram_handler.add_handler(MessageHandler(Filters.text('💰Wallets'), self.show_wallets))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⬅️Back to menu'), self.command_start))
-        self.telegram_handler.add_handler(MessageHandler(Filters.regex('Wallet #\d+'), self.wallet_operations))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('Wallet #1'), self.wallet1_operations))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⬅️Back to wallets'), self.show_wallets))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⚖️Balance'), self.show_balance))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('📖History'), self.show_history))
@@ -71,13 +72,13 @@ class TelegramCommands:
         update.message.reply_text('Which wallet do you want to check?', reply_markup = reply_markup)
 
 
-    def wallet_operations(self, update, context):
+    def wallet1_operations(self, update, context):
 
         if not self.validate_user(update.message.chat_id): return
 
         message = update.message.text
 
-        reply_markup = ReplyKeyboardMarkup(self.keyboards['wallet-operations'], resize_keyboard = True)
+        reply_markup = ReplyKeyboardMarkup(self.keyboards['wallet1-operations'], resize_keyboard = True)
 
         update.message.reply_text('Select the operation to execute on: <b>' + message + '</b>', reply_markup = reply_markup, parse_mode = 'HTML')
 
@@ -85,8 +86,8 @@ class TelegramCommands:
     def show_balance(self, update, context):
 
         if not self.validate_user(update.message.chat_id): return
-
-        update.message.reply_text('Your balance is 5 CUP')
+    
+        update.message.reply_text('Your balance is ' + self.wallet1.get_balance_usdt() + ' USDT')
 
 
     def show_history(self, update, context):
