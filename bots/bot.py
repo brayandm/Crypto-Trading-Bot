@@ -27,7 +27,7 @@ class Bot:
             self.last_prices_limit_time = int(data['last_prices_limit_time'])
             self.eps = float(data['eps'])
 
-            message = 'Bot constants were updated:\n\n'
+            message = self.bot_name + ' constants were updated:\n\n'
 
             for var in data:
 
@@ -37,21 +37,21 @@ class Bot:
 
         except:
 
-            telegram_bot.send('There was an error extracting the constants in the database...')
+            telegram_bot.send('There was an error extracting the ' + self.bot_name + ' constants in the database...')
 
             ExceptionC.stop_bot()
 
 
-    def __init__(self, kucoin_wallet):
+    def __init__(self, bot_name, kucoin_wallet):
 
-        telegram_bot.send('Initializing bot...')
+        self.bot_name = bot_name
+
+        telegram_bot.send('Initializing ' + self.bot_name + '...')
 
         self.turn_on = True
 
         self.Kc = kucoin_wallet
 
-        self.last_message_id_status = telegram_bot.get_message_status()[1]
-        
         self.update_constants()
 
         self.print_balance()
@@ -111,7 +111,7 @@ class Bot:
 
         if balance_currency * price_currency < self.eps:
 
-            telegram_bot.send('Investment status:\n\n\"No investment\"')
+            telegram_bot.send(self.bot_name + ' investment status:\n\n\"No investment\"')
 
         else:
 
@@ -119,7 +119,7 @@ class Bot:
             stop_loss = investment_price * (100 - self.stop_loss_percent) / 100
             take_profit = investment_price * (100 + self.take_profit_percent) / 100
 
-            message = 'Investment status:\n\n'
+            message = self.bot_name + ' investment status:\n\n'
             message += 'Current price: ' + self.Kc.round_number_price(self.currency, str(price_currency)) + ' USDT\n'
             message += 'Investment price: ' + self.Kc.round_number_price(self.currency, str(investment_price)) + ' USDT\n'
             message += 'Stop loss price: ' + self.Kc.round_number_price(self.currency, str(stop_loss)) + ' USDT\n'
@@ -140,62 +140,19 @@ class Bot:
             telegram_bot.send(message)
 
 
-    def update_status(self):
-
-        (message, message_id) = telegram_bot.get_message_status()
-
-        if message_id == self.last_message_id_status and message.lower() != 'stop':
-
-            return
-        
-        self.last_message_id_status = message_id
-
-        message = message.lower()
-
-        if message == 'price':
-
-            telegram_bot.send('Currency price: ' + self.Kc.get_price_currency(self.Kc.currency) + ' USDT')
-        
-        elif message == 'investment':
-
-            self.print_investment_status()
-
-        elif message == 'balance':
-
-            self.print_balance()
-        
-        elif message == 'update':
-
-            self.update_constants()
-
-        elif message == 'stop':
-
-            telegram_bot.send('Bot stopped manually... Waiting')
-
-            while True:
-
-                if telegram_bot.get_message_status()[0].lower() == 'start':
-
-                    telegram_bot.send('Bot started manually...')
-
-                    break
-
-
     def update(self):
 
         if self.turn_on == False:
 
-            telegram_bot.send('Bot stopped manually... Waiting')
+            telegram_bot.send(self.bot_name + ' stopped manually... Waiting')
 
             while self.turn_on == False:
 
                 pass
 
-            telegram_bot.send('Bot started manually...')
+            telegram_bot.send(self.bot_name + ' started manually...')
             
 
-        self.update_status()        
-                    
         balance_usdt = float(self.Kc.get_balance_usdt())
         balance_currency = float(self.Kc.get_balance_currency(self.currency))
         price_currency = float(self.Kc.get_price_currency(self.currency))
@@ -210,7 +167,7 @@ class Bot:
                 new_balance_usdt = self.Kc.get_balance_usdt()
                 new_balance_currency = self.Kc.get_balance_currency(self.currency)
 
-                message = 'Buying complete:\n\n'
+                message = self.bot_name + ' buying complete:\n\n'
                 message += 'Investment: buying currency in ' + self.Kc.round_number_price(self.currency, str(price_currency)) + ' USDT\n'
                 message += 'Market buying price: ' + self.Kc.round_number_price(self.currency, str(self.investment_order_limit / float(new_balance_currency))) + ' USDT\n'
                 message += 'Total balance usdt: ' + self.Kc.round_number_price(self.currency, new_balance_usdt) + ' USDT\n'
@@ -231,7 +188,7 @@ class Bot:
                 new_balance_usdt = self.Kc.get_balance_usdt()
                 new_balance_currency = self.Kc.get_balance_currency(self.currency)
 
-                message = 'Selling complete:\n\n'
+                message = self.bot_name + ' selling complete:\n\n'
 
                 if price_currency < stop_loss:
 
