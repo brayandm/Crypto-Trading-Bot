@@ -1,5 +1,3 @@
-import os
-
 from kucoin.client import Market
 from kucoin.client import Trade
 from kucoin.client import User
@@ -9,14 +7,12 @@ from app_exception_control import ExceptionC
 
 class Kucoin:
 
-    api_key = os.environ['api_key']
-    api_secret = os.environ['api_secret']
-    api_passphrase = os.environ['api_passphrase']
-    is_sandbox = True if os.environ['is_sandbox'] == 'yes' else False
+    def __init__(self, api_key = '', api_secret = '', api_passphrase = '', is_sandbox = False):
 
-    client_market = Market()
-    client_trade = Trade(key=api_key, secret=api_secret, passphrase=api_passphrase, is_sandbox=is_sandbox)
-    client_user = User(key=api_key, secret=api_secret, passphrase=api_passphrase, is_sandbox=is_sandbox)
+        self.client_market = Market()
+        self.client_trade = Trade(key=api_key, secret=api_secret, passphrase=api_passphrase, is_sandbox=is_sandbox)
+        self.client_user = User(key=api_key, secret=api_secret, passphrase=api_passphrase, is_sandbox=is_sandbox)
+
 
     def get_currency_from_symbol(self, symbol):
 
@@ -163,6 +159,3 @@ class Kucoin:
             telegram_bot.send('Selling currency...')
 
             ExceptionC.check_stop()
-        
-        
-Kc = Kucoin()
