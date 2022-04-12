@@ -45,22 +45,28 @@ class TradeVirtual:
         return ExceptionC.with_send(self.client_market.get_24h_stats, symbol = symbol)['last'] 
 
 
+    def get_currency_taker_fee(self, symbol = None):
+
+        return ExceptionC.with_send(self.client_market.get_24h_stats, symbol = symbol)['takerFeeRate']
+
+
     def create_market_order(self, symbol = None, side = None, funds = None, size = None):
 
         sell_side = symbol.split('-')[0]
         buy_side = symbol.split('-')[1]
 
         price = self.get_price_currency(symbol)
+        fee = self.get_currency_taker_fee(symbol)
 
         if side == 'buy':
 
             self.wallet.data[buy_side] = str(float(self.wallet.data[buy_side]) - float(funds))
-            self.wallet.data[sell_side] = str(float(self.wallet.data[sell_side]) + float(funds) / float(price))
+            self.wallet.data[sell_side] = str(float(self.wallet.data[sell_side]) + float(funds) / float(price) * (1 - float(fee)))
 
         if side == 'sell':
 
             self.wallet.data[sell_side] = str(float(self.wallet.data[sell_side]) - float(size))
-            self.wallet.data[buy_side] = str(float(self.wallet.data[buy_side]) + float(size) * float(price))
+            self.wallet.data[buy_side] = str(float(self.wallet.data[buy_side]) + float(size) * float(price) * (1 - float(fee)))
 
 
     def get_order_list(self, status = None):
@@ -185,6 +191,16 @@ class KucoinVirtual:
     def get_price_currency(self, currency):
 
         return ExceptionC.with_send(self.client_market.get_24h_stats, symbol = self.get_symbol_from_currency(currency))['last']
+
+
+    def get_currency_taker_fee(self, currency):
+
+        return ExceptionC.with_send(self.client_market.get_24h_stats, symbol = self.get_symbol_from_currency(currency))['takerFeeRate']
+
+
+    def get_currency_maker_fee(self, currency):
+
+        return ExceptionC.with_send(self.client_market.get_24h_stats, symbol = self.get_symbol_from_currency(currency))['makerFeeRate']
 
 
     def get_last_minutes(self, currency, minutes):

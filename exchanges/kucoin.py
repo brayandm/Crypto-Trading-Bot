@@ -121,6 +121,16 @@ class Kucoin:
         return ExceptionC.with_send(self.client_market.get_24h_stats, symbol = self.get_symbol_from_currency(currency))['last']
 
 
+    def get_currency_taker_fee(self, currency):
+
+        return ExceptionC.with_send(self.client_market.get_24h_stats, symbol = self.get_symbol_from_currency(currency))['takerFeeRate']
+
+
+    def get_currency_maker_fee(self, currency):
+
+        return ExceptionC.with_send(self.client_market.get_24h_stats, symbol = self.get_symbol_from_currency(currency))['makerFeeRate']
+
+
     def get_last_minutes(self, currency, minutes):
 
         tend = ExceptionC.with_send(self.client_market.get_server_timestamp) // 1000
