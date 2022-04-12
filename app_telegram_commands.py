@@ -6,9 +6,10 @@ from app_exception_control import ExceptionC
 
 class TelegramCommands:
 
-    def init(self, bot1, wallet1, wallet2):
+    def init(self, bot1, bot2, wallet1, wallet2):
 
         self.bot1 = bot1
+        self.bot2 = bot2
         self.wallet1 = wallet1
         self.wallet2 = wallet2
 
@@ -17,8 +18,9 @@ class TelegramCommands:
             'wallets': [[self.wallet1.wallet_name, self.wallet2.wallet_name], ['⬅️Back to menu']],
             'wallet1-operations': [['⚖️Balance ' + self.wallet1.wallet_name, '📖History ' + self.wallet1.wallet_name], ['⬅️Back to wallets']],
             'wallet2-operations': [['⚖️Balance ' + self.wallet2.wallet_name, '📖History ' + self.wallet2.wallet_name], ['⬅️Back to wallets']],
-            'bots': [[self.bot1.bot_name], ['⬅️Back to menu']],
+            'bots': [[self.bot1.bot_name, self.bot2.bot_name], ['⬅️Back to menu']],
             'bot1-operations': [['✅Start ' + self.bot1.bot_name, '🚫Stop ' + self.bot1.bot_name], ['⚖️Balance ' + self.bot1.bot_name, '📈Investment ' + self.bot1.bot_name], ['🔄Update ' + self.bot1.bot_name, '⬅️Back to bots']],
+            'bot2-operations': [['✅Start ' + self.bot2.bot_name, '🚫Stop ' + self.bot2.bot_name], ['⚖️Balance ' + self.bot2.bot_name, '📈Investment ' + self.bot2.bot_name], ['🔄Update ' + self.bot2.bot_name, '⬅️Back to bots']],
         }
 
         self.valid_ids = os.environ['valid_ids'].split(',')
@@ -29,28 +31,43 @@ class TelegramCommands:
         self.telegram_handler.add_handler(CommandHandler('start', self.command_start))
         self.telegram_handler.add_handler(CommandHandler('reboot', self.command_reboot))
 
+
         self.telegram_handler.add_handler(MessageHandler(Filters.text('💰Wallets'), self.show_wallets))
+
         self.telegram_handler.add_handler(MessageHandler(Filters.text(self.wallet1.wallet_name), self.wallet1_operations))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⚖️Balance ' + self.wallet1.wallet_name), self.wallet1_balance))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('📖History ' + self.wallet1.wallet_name), self.wallet1_history))
+
         self.telegram_handler.add_handler(MessageHandler(Filters.text(self.wallet2.wallet_name), self.wallet2_operations))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⚖️Balance ' + self.wallet2.wallet_name), self.wallet2_balance))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('📖History ' + self.wallet2.wallet_name), self.wallet2_history))
+
+
         self.telegram_handler.add_handler(MessageHandler(Filters.text('🤖Bots'), self.show_bots))
+
         self.telegram_handler.add_handler(MessageHandler(Filters.text(self.bot1.bot_name), self.bot1_operations))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('✅Start ' + self.bot1.bot_name), self.bot1_start))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('🚫Stop ' + self.bot1.bot_name), self.bot1_stop))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⚖️Balance ' + self.bot1.bot_name), self.bot1_balance))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('📈Investment ' + self.bot1.bot_name), self.bot1_investment))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('🔄Update ' + self.bot1.bot_name), self.bot1_update))
+
+        self.telegram_handler.add_handler(MessageHandler(Filters.text(self.bot2.bot_name), self.bot2_operations))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('✅Start ' + self.bot2.bot_name), self.bot2_start))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('🚫Stop ' + self.bot2.bot_name), self.bot2_stop))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('⚖️Balance ' + self.bot2.bot_name), self.bot2_balance))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('📈Investment ' + self.bot2.bot_name), self.bot2_investment))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('🔄Update ' + self.bot2.bot_name), self.bot2_update))
+
+
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⬅️Back to menu'), self.command_start))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⬅️Back to wallets'), self.show_wallets))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⬅️Back to bots'), self.show_bots))
 
 
-    def __init__(self, bot1, wallet1, wallet2):
+    def __init__(self, bot1, bot2, wallet1, wallet2):
 
-        ExceptionC.with_send(self.init, bot1 = bot1, wallet1 = wallet1, wallet2 = wallet2)
+        ExceptionC.with_send(self.init, bot1 = bot1, bot2 = bot2, wallet1 = wallet1, wallet2 = wallet2)
 
 
     def listen(self):
@@ -229,5 +246,67 @@ class TelegramCommands:
         message = update.message.text
 
         reply_markup = ReplyKeyboardMarkup(self.keyboards['bot1-operations'], resize_keyboard = True)
+        
+        update.message.reply_text('Select the operation to execute on: <b>' + message + '</b>', reply_markup = reply_markup, parse_mode = 'HTML')
+
+    
+    def bot2_start(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+
+        if self.bot2.is_turn_on() == False:
+
+            self.bot2.change_state_turn_on()
+
+            update.message.reply_text(self.bot2.bot_name + ' started manually...')
+        
+        else:
+
+            update.message.reply_text(self.bot2.bot_name + ' is already started...')
+
+
+    def bot2_stop(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+
+        if self.bot2.is_turn_on() == True:
+
+            self.bot2.change_state_turn_on()
+
+            update.message.reply_text(self.bot2.bot_name + ' stopped manually... Waiting')
+
+        else:
+
+            update.message.reply_text(self.bot2.bot_name + ' is already stopped... Waiting')
+
+
+    def bot2_balance(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+        
+        update.message.reply_text(self.bot2.print_balance())
+
+
+    def bot2_investment(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+        
+        update.message.reply_text(self.bot2.print_investment_status())
+
+
+    def bot2_update(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+        
+        update.message.reply_text(self.bot2.update_with_database())
+        
+
+    def bot2_operations(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+
+        message = update.message.text
+
+        reply_markup = ReplyKeyboardMarkup(self.keyboards['bot2-operations'], resize_keyboard = True)
         
         update.message.reply_text('Select the operation to execute on: <b>' + message + '</b>', reply_markup = reply_markup, parse_mode = 'HTML')
