@@ -1,5 +1,6 @@
 import json
 
+from app_database import database
 from app_telegram import telegram_bot
 from app_exception_control import ExceptionC
 
@@ -15,24 +16,22 @@ class Bot:
 
     def change_state_turn_on(self):
 
-        data = json.loads(telegram_bot.get_message_database()[0])
+        state = database.get_database_path(self.bot_name, 'turn_on').lower()
 
-        if data[self.bot_name]['turn_on'].lower() == 'yes':
+        if state == 'yes':
 
-            data[self.bot_name]['turn_on'] = 'no'
-        
+            database.write_database_path(self.bot_name, 'turn_on', 'no')
+
         else:
 
-            data[self.bot_name]['turn_on'] = 'yes'
-
-        telegram_bot.edit_message_database(json.dumps(data))
+            database.write_database_path(self.bot_name, 'turn_on', 'yes')
 
 
     def is_turn_on(self):
 
         try:
 
-            return json.loads(telegram_bot.get_message_database()[0])[self.bot_name]['turn_on'].lower() == 'yes'
+            return database.get_database_path(self.bot_name, 'turn_on').lower() == 'yes'
         
         except Exception as e:
 
@@ -49,23 +48,23 @@ class Bot:
 
     def update_with_database(self):
 
-        data = json.loads(telegram_bot.get_message_database()[0])
+        data = database.get_database_path(self.bot_name)
 
         try:
 
-            self.currency = data[self.bot_name]['currency']
+            self.currency = data['currency']
             self.symbol = self.currency + '-USDT'
-            self.investment_order_limit = float(data[self.bot_name]['investment_order_limit'])
-            self.take_profit_percent = float(data[self.bot_name]['take_profit_percent'])
-            self.stop_loss_percent = float(data[self.bot_name]['stop_loss_percent'])
-            self.last_prices_limit_time = int(data[self.bot_name]['last_prices_limit_time'])
-            self.eps = float(data[self.bot_name]['eps'])
+            self.investment_order_limit = float(data['investment_order_limit'])
+            self.take_profit_percent = float(data['take_profit_percent'])
+            self.stop_loss_percent = float(data['stop_loss_percent'])
+            self.last_prices_limit_time = int(data['last_prices_limit_time'])
+            self.eps = float(data['eps'])
 
             message = self.bot_name + ' constants were updated:\n\n'
 
-            for var in data[self.bot_name]:
+            for var in data:
 
-                message += var + ' = ' + data[self.bot_name][var] + '\n'
+                message += var + ' = ' + data[var] + '\n'
 
             telegram_bot.send(message)
 

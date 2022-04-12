@@ -18,7 +18,7 @@ class WalletVirtual:
 
         if database.exists_database_path(self.wallet_name) == False:
 
-            database.write_database_path({}, self.wallet_name)
+            database.write_database_path(self.wallet_name, {})
 
         return database.get_database_path(self.wallet_name)
 
@@ -27,14 +27,14 @@ class WalletVirtual:
 
         if database.exists_database_path(self.wallet_name, currency) == False:
 
-            database.write_database_path('0', self.wallet_name, currency)
+            database.write_database_path(self.wallet_name, currency, '0')
 
         return database.get_database_path(self.wallet_name, currency)
 
 
     def set_balance_currency(self, currency, value):
 
-        database.write_database_path(value, self.wallet_name, currency)
+        database.write_database_path(self.wallet_name, currency, value)
 
 
 class UserVirtual:

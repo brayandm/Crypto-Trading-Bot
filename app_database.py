@@ -33,13 +33,17 @@ class Database:
         return data
 
 
-    def write_database_path(self, wdata, *args):
+    def write_database_path(self, *args):
 
-        def recursive_write_database_path(data, wdata, *args):
+        if len(args) == 0:
 
-            if len(args) == 0:
+            return
 
-                return wdata
+        def recursive_write_database_path(data, *args):
+
+            if len(args) == 1:
+
+                return args[0]
 
             try:
 
@@ -49,11 +53,11 @@ class Database:
 
                 data[args[0]] = {}
 
-            data[args[0]] = recursive_write_database_path(data[args[0]], wdata, *args[1:])
+            data[args[0]] = recursive_write_database_path(data[args[0]], *args[1:])
 
             return data
 
-        data = recursive_write_database_path(json.loads(telegram_bot.get_message_database()[0]), wdata, *args)
+        data = recursive_write_database_path(json.loads(telegram_bot.get_message_database()[0]), *args)
 
         telegram_bot.edit_message_database(json.dumps(data))
 
