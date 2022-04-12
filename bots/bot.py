@@ -69,6 +69,8 @@ class Bot:
 
             telegram_bot.send(message)
 
+            return message
+
         except Exception as e:
 
             telegram_bot.send(str(e))
@@ -128,6 +130,8 @@ class Bot:
 
         telegram_bot.send(message)
 
+        return message
+
     
     def investment_status(self):
 
@@ -150,7 +154,11 @@ class Bot:
 
         if balance_currency * price_currency < self.eps:
 
-            telegram_bot.send(self.bot_name + ' investment status:\n\n\"No investment\"')
+            message = self.bot_name + ' investment status:\n\n\"No investment\"'
+
+            telegram_bot.send(message)
+
+            return message
 
         else:
 
@@ -177,6 +185,8 @@ class Bot:
                 message += 'Current gain: +' + self.Kc.round_number_price(self.currency, str(current_gain)) + ' USDT'
             
             telegram_bot.send(message)
+
+            return message
 
 
     def update(self):

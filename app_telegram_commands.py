@@ -16,7 +16,7 @@ class TelegramCommands:
             'wallets': [[self.wallet1.wallet_name], ['⬅️Back to menu']],
             'wallet1-operations': [['⚖️Balance ' + self.wallet1.wallet_name, '📖History ' + self.wallet1.wallet_name], ['⬅️Back to wallets']],
             'bots': [[self.bot1.bot_name], ['⬅️Back to menu']],
-            'bot1-operations': [['✅Start ' + self.bot1.bot_name, '🚫Stop ' + self.bot1.bot_name], ['⬅️Back to bots']],
+            'bot1-operations': [['✅Start ' + self.bot1.bot_name, '🚫Stop ' + self.bot1.bot_name], ['⚖️Balance ' + self.bot1.bot_name, '📈Investment ' + self.bot1.bot_name], ['🔄Update ' + self.bot1.bot_name, '⬅️Back to bots']],
         }
 
         self.valid_ids = os.environ['valid_ids'].split(',')
@@ -34,6 +34,9 @@ class TelegramCommands:
         self.telegram_handler.add_handler(MessageHandler(Filters.text(self.bot1.bot_name), self.bot1_operations))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('✅Start ' + self.bot1.bot_name), self.bot1_start))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('🚫Stop ' + self.bot1.bot_name), self.bot1_stop))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('⚖️Balance ' + self.bot1.bot_name), self.bot1_balance))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('📈Investment ' + self.bot1.bot_name), self.bot1_investment))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('🔄Update ' + self.bot1.bot_name), self.bot1_update))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⬅️Back to menu'), self.command_start))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⬅️Back to wallets'), self.show_wallets))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⬅️Back to bots'), self.show_bots))
@@ -42,7 +45,7 @@ class TelegramCommands:
     def __init__(self, bot1, wallet1):
 
         ExceptionC.with_send(self.init, bot1 = bot1, wallet1 = wallet1)
-        
+
 
     def listen(self):
 
@@ -149,6 +152,27 @@ class TelegramCommands:
 
             update.message.reply_text(self.bot1.bot_name + ' is already stopped... Waiting')
 
+
+    def bot1_balance(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+        
+        update.message.reply_text(self.bot1.print_balance())
+
+
+    def bot1_investment(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+        
+        update.message.reply_text(self.bot1.print_investment_status())
+
+
+    def bot1_update(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+        
+        update.message.reply_text(self.bot1.update_with_database())
+        
 
     def bot1_operations(self, update, context):
 
