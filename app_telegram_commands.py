@@ -46,6 +46,7 @@ class TelegramCommands:
 
 
         self.telegram_handler.add_handler(MessageHandler(Filters.text('🤖Bots'), self.show_bots))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('❓Help'), self.show_help))
 
         self.telegram_handler.add_handler(MessageHandler(Filters.text(self.bot1.bot_name), self.bot1_operations))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('✅Start ' + self.bot1.bot_name), self.bot1_start))
@@ -120,6 +121,17 @@ class TelegramCommands:
         else:
 
             update.message.reply_text('The price of ' + currency + ' is ' + price + ' USDT')
+
+    def show_help(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+
+        message = ''
+        message += '/start\n'
+        message += '/reboot\n'
+        message += '/price currency\n'
+
+        update.message.reply_text(message)
 
 
     def show_wallets(self, update, context):
