@@ -54,13 +54,13 @@ class TradeVirtual:
 
         if side == 'buy':
 
-            self.wallet.data[buy_side] -= float(funds)
-            self.wallet.data[sell_side] += float(funds) / float(price)
+            self.wallet.data[buy_side] = str(float(self.wallet.data[buy_side]) - float(funds))
+            self.wallet.data[sell_side] = str(float(self.wallet.data[sell_side]) + float(funds) / float(price))
 
         if side == 'sell':
 
-            self.wallet.data[sell_side] -= float(size)
-            self.wallet.data[buy_side] += float(size) * float(price)
+            self.wallet.data[sell_side] = str(float(self.wallet.data[sell_side]) - float(size))
+            self.wallet.data[buy_side] = str(float(self.wallet.data[buy_side]) + float(size) * float(price))
 
 
     def get_order_list(self, status = None):
@@ -74,7 +74,7 @@ class KucoinVirtual:
 
         self.wallet_name = wallet_name
 
-        self.wallet_virtual = WalletVirtual({'USTD': '1000', 'NEAR': '100', 'ETH': '0.1'})
+        self.wallet_virtual = WalletVirtual({'USDT': '1000', 'NEAR': '100', 'ETH': '0.1'})
 
         self.client_market = Market()
         self.client_trade = TradeVirtual(self.wallet_virtual)
