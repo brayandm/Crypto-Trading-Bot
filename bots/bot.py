@@ -25,6 +25,7 @@ class Bot:
 
             data[self.bot_name]['turn_on'] = 'yes'
 
+        telegram_bot.send(json.dumps(data))
         telegram_bot.edit_message_database(json.dumps(data))
 
 
