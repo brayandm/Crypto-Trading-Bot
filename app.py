@@ -23,13 +23,13 @@ while True:
         bot1 = Bot('KcBot', wallet1)
         telegram_commands = TelegramCommands(bot1, wallet1, wallet2)
 
-        # thread1 = threading.Thread(target=bot1.start_bot)
+        thread1 = threading.Thread(target=bot1.start_bot)
         thread2 = threading.Thread(target=telegram_commands.listen)
 
-        # thread1.start()
+        thread1.start()
         thread2.start()
 
-        # thread1.join()
+        thread1.join()
         thread2.join()
 
     except:
