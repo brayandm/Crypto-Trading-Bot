@@ -205,6 +205,7 @@ class Bot:
         balance_currency = float(self.Kc.get_balance_currency(self.currency))
         price_currency = float(self.Kc.get_price_currency(self.currency))
         average_last_prices = self.get_average_last_prices()
+        fee = float(self.Kc.get_currency_taker_fee(self.currency))
 
         if balance_currency * price_currency < self.eps:
 
@@ -246,7 +247,7 @@ class Bot:
 
                     message += 'Take profit: selling currency in ' + self.Kc.round_number_price(self.currency, str(price_currency)) + ' USDT\n'
 
-                message += 'Market selling price: ' + self.Kc.round_number_price(self.currency, str((float(new_balance_usdt) - balance_usdt) / balance_currency)) + ' USDT\n'
+                message += 'Market selling price: ' + self.Kc.round_number_price(self.currency, str((float(new_balance_usdt) - balance_usdt) * (1 + fee) / balance_currency)) + ' USDT\n'
                 message += 'Total balance usdt: ' + self.Kc.round_number_price(self.currency, new_balance_usdt) + ' USDT\n'
                 message += 'Total balance currency: ' + self.Kc.round_number_price(self.currency, new_balance_currency) + ' ' + self.currency
 

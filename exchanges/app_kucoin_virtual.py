@@ -155,7 +155,9 @@ class KucoinVirtual:
         
         if point_position == -1:
 
-            return cad
+            point_position = len(cad)
+
+            cad += '.'
             
         while point_position + precision + 1 < len(cad):
 
