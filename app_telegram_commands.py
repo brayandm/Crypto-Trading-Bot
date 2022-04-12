@@ -133,7 +133,7 @@ class TelegramCommands:
 
         if not self.validate_user(update.message.chat_id): return
 
-        if self.bot1.turn_on() == True:
+        if self.bot1.is_turn_on() == True:
 
             self.bot1.change_state_turn_on()
 
