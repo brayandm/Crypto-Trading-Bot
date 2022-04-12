@@ -6,15 +6,17 @@ from app_exception_control import ExceptionC
 
 class TelegramCommands:
 
-    def init(self, bot1, wallet1):
+    def init(self, bot1, wallet1, wallet2):
 
         self.bot1 = bot1
         self.wallet1 = wallet1
+        self.wallet2 = wallet2
 
         self.keyboards = {
             'main-menu': [['💰Wallets'], ['🤖Bots'], ['❓Help']],
-            'wallets': [[self.wallet1.wallet_name], ['⬅️Back to menu']],
+            'wallets': [[self.wallet1.wallet_name, self.wallet2.wallet_name], ['⬅️Back to menu']],
             'wallet1-operations': [['⚖️Balance ' + self.wallet1.wallet_name, '📖History ' + self.wallet1.wallet_name], ['⬅️Back to wallets']],
+            'wallet2-operations': [['⚖️Balance ' + self.wallet2.wallet_name, '📖History ' + self.wallet2.wallet_name], ['⬅️Back to wallets']],
             'bots': [[self.bot1.bot_name], ['⬅️Back to menu']],
             'bot1-operations': [['✅Start ' + self.bot1.bot_name, '🚫Stop ' + self.bot1.bot_name], ['⚖️Balance ' + self.bot1.bot_name, '📈Investment ' + self.bot1.bot_name], ['🔄Update ' + self.bot1.bot_name, '⬅️Back to bots']],
         }
@@ -30,6 +32,9 @@ class TelegramCommands:
         self.telegram_handler.add_handler(MessageHandler(Filters.text(self.wallet1.wallet_name), self.wallet1_operations))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⚖️Balance ' + self.wallet1.wallet_name), self.wallet1_balance))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('📖History ' + self.wallet1.wallet_name), self.wallet1_history))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text(self.wallet2.wallet_name), self.wallet2_operations))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('⚖️Balance ' + self.wallet2.wallet_name), self.wallet2_balance))
+        self.telegram_handler.add_handler(MessageHandler(Filters.text('📖History ' + self.wallet2.wallet_name), self.wallet2_history))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('🤖Bots'), self.show_bots))
         self.telegram_handler.add_handler(MessageHandler(Filters.text(self.bot1.bot_name), self.bot1_operations))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('✅Start ' + self.bot1.bot_name), self.bot1_start))
@@ -42,9 +47,9 @@ class TelegramCommands:
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⬅️Back to bots'), self.show_bots))
 
 
-    def __init__(self, bot1, wallet1):
+    def __init__(self, bot1, wallet1, wallet2):
 
-        ExceptionC.with_send(self.init, bot1 = bot1, wallet1 = wallet1)
+        ExceptionC.with_send(self.init, bot1 = bot1, wallet1 = wallet1, wallet2 = wallet2)
 
 
     def listen(self):
@@ -112,6 +117,39 @@ class TelegramCommands:
         if not self.validate_user(update.message.chat_id): return
 
         update.message.reply_text('Your order history in ' + self.wallet1.wallet_name + ' is clear')
+
+    
+    def wallet2_operations(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+
+        message = update.message.text
+
+        reply_markup = ReplyKeyboardMarkup(self.keyboards['wallet2-operations'], resize_keyboard = True)
+
+        update.message.reply_text('Select the operation to execute on: <b>' + message + '</b>', reply_markup = reply_markup, parse_mode = 'HTML')
+
+
+    def wallet2_balance(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+
+        data = self.wallet2.get_balance_total()
+
+        message = 'Your balance in ' + self.wallet2.wallet_name + ' is:\n\n'
+
+        for key in data:
+
+            message += data[key] + ' ' + key + '\n'
+    
+        update.message.reply_text(message)
+
+
+    def wallet2_history(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+
+        update.message.reply_text('Your order history in ' + self.wallet2.wallet_name + ' is clear')
 
 
     def show_bots(self, update, context):
