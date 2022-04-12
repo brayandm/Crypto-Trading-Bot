@@ -127,6 +127,7 @@ class TelegramCommands:
         if not self.validate_user(update.message.chat_id): return
 
         message = ''
+        message += 'List of commands:\n\n'
         message += '/start\n'
         message += '/reboot\n'
         message += '/price [currency]\n'
