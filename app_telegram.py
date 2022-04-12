@@ -66,7 +66,9 @@ class Telegram:
 
     def edit_message_database(self, message):
 
-        self.exception_control(self.telegram_bot.edit_message_text, text = message, chat_id = self.database_channel, message_id = self.get_message_database()[1])
+        if message != self.get_message_database()[0]:
+
+            self.exception_control(self.telegram_bot.edit_message_text, text = message, chat_id = self.database_channel, message_id = self.get_message_database()[1])
 
 
 telegram_bot = Telegram()
