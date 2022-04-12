@@ -84,7 +84,7 @@ class TelegramCommands:
 
         update.message.reply_text('Shutting down the system')
 
-        1/0
+        os._exit(os.EX_OK)
 
 
     def show_wallets(self, update, context):
