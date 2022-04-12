@@ -2,10 +2,11 @@ import os
 
 from telegram import Bot, ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from app_exception_control import ExceptionC
 
 class TelegramCommands:
 
-    def __init__(self, bot1, wallet1):
+    def init(self, bot1, wallet1):
 
         self.bot1 = bot1
         self.wallet1 = wallet1
@@ -37,6 +38,11 @@ class TelegramCommands:
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⬅️Back to wallets'), self.show_wallets))
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⬅️Back to bots'), self.show_bots))
 
+
+    def __init__(self, bot1, wallet1):
+
+        ExceptionC.with_send(self.init, bot1 = bot1, wallet1 = wallet1)
+        
 
     def listen(self):
 
