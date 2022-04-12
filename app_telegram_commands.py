@@ -1,5 +1,4 @@
 import os
-import sys
 
 from telegram import Bot, ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
@@ -85,7 +84,7 @@ class TelegramCommands:
 
         update.message.reply_text('Shutting down the system')
 
-        sys.exit()
+        quit()
 
 
     def show_wallets(self, update, context):
