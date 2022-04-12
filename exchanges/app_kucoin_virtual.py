@@ -2,14 +2,39 @@ from kucoin.client import Market
 from kucoin.client import Trade
 from kucoin.client import User
 
+from app_database import database
 from app_telegram import telegram_bot
+from app_exception_control import ExceptionC
 from app_exception_control import ExceptionC
 
 class WalletVirtual:
 
-    def __init__(self, data):
+    def __init__(self, wallet_name):
 
-        self.data = data
+        self.wallet_name = wallet_name
+
+
+    def get_balance_all_currencies(self):
+
+        if database.exists_database_path(self.wallet_name) == False:
+
+            database.write_database_path({}, self.wallet_name)
+
+        return database.get_database_path(self.wallet_name)
+
+
+    def get_balance_currency(self, currency):
+
+        if database.exists_database_path(self.wallet_name, currency) == False:
+
+            database.write_database_path('0', self.wallet_name, currency)
+
+        return database.get_database_path(self.wallet_name, currency)
+
+
+    def set_balance_currency(self, currency, value):
+
+        database.write_database_path(value, self.wallet_name, currency)
 
 
 class UserVirtual:
@@ -21,15 +46,17 @@ class UserVirtual:
 
     def get_account_list(self, currency = None, account_type = None):
 
-        data = []
+        data = self.wallet.get_balance_all_currencies()
 
-        for key in self.wallet.data:
+        arr = []
+
+        for key in data:
 
             if currency == None or currency == key:
 
-                data.append({'currency': str(key), 'balance': str(self.wallet.data[key])})
+                arr.append({'currency': str(key), 'balance': str(data[key])})
         
-        return data
+        return arr
 
 
 class TradeVirtual:
@@ -60,13 +87,13 @@ class TradeVirtual:
 
         if side == 'buy':
 
-            self.wallet.data[buy_side] = str(float(self.wallet.data[buy_side]) - float(funds) * (1 + float(fee)))
-            self.wallet.data[sell_side] = str(float(self.wallet.data[sell_side]) + float(funds) / float(price))
+            self.wallet.set_balance_currency(buy_side, str(float(self.wallet.get_balance_currency(buy_side)) - float(funds) * (1 + float(fee))))
+            self.wallet.set_balance_currency(sell_side, str(float(self.wallet.get_balance_currency(sell_side)) + float(funds) / float(price)))
 
         if side == 'sell':
 
-            self.wallet.data[sell_side] = str(float(self.wallet.data[sell_side]) - float(size))
-            self.wallet.data[buy_side] = str(float(self.wallet.data[buy_side]) + float(size) * float(price) * (1 - float(fee)))
+            self.wallet.set_balance_currency(sell_side, str(float(self.wallet.get_balance_currency(sell_side)) - float(size)))
+            self.wallet.set_balance_currency(buy_side, str(float(self.wallet.get_balance_currency(buy_side)) + float(size) * float(price) * (1 - float(fee))))
 
 
     def get_order_list(self, status = None):
@@ -80,7 +107,7 @@ class KucoinVirtual:
 
         self.wallet_name = wallet_name
 
-        self.wallet_virtual = WalletVirtual({'USDT': '1000', 'NEAR': '100', 'ETH': '0.1'})
+        self.wallet_virtual = WalletVirtual(wallet_name)
 
         self.client_market = Market()
         self.client_trade = TradeVirtual(self.wallet_virtual)
