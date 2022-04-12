@@ -5,14 +5,6 @@ from app_telegram import telegram_bot
 from app_exception_control import ExceptionC
 
 class Bot:
-    
-    # currency = 'NEAR'
-    # symbol = 'NEAR-USDT'
-    # investment_order_limit = 10
-    # take_profit_percent = 2.3
-    # stop_loss_percent = 5.7
-    # last_prices_limit_time = 210
-    # eps = 0.01
 
     def change_state_turn_on(self):
 
@@ -58,6 +50,7 @@ class Bot:
             self.take_profit_percent = float(data['take_profit_percent'])
             self.stop_loss_percent = float(data['stop_loss_percent'])
             self.last_prices_limit_time = int(data['last_prices_limit_time'])
+            self.trade_type = data['trade_type']
             self.eps = float(data['eps'])
 
             message = self.bot_name + ' constants were updated:\n\n'
@@ -209,7 +202,32 @@ class Bot:
 
         if balance_currency * price_currency < self.eps:
 
-            if price_currency <= average_last_prices:
+            is_good_to_invest = False
+
+            if self.trade_type == 'uptrend':
+
+                if price_currency >= average_last_prices:
+
+                    is_good_to_invest = True
+            
+            elif self.trade_type == 'downtrend':
+
+                if price_currency <= average_last_prices:
+
+                    is_good_to_invest = True
+            
+            else:
+
+                telegram_bot.send('The trade type in ' + self.bot_name + ' is not recognized...')
+
+                telegram_bot.send(self.bot_name + ' stopped automatically...')
+
+                while True:
+
+                    pass
+
+
+            if is_good_to_invest:
 
                 self.Kc.buy_currency(self.currency, self.investment_order_limit)
 
