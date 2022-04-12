@@ -63,7 +63,7 @@ class Bot:
 
             message = self.bot_name + ' constants were updated:\n\n'
 
-            for var in data:
+            for var in data[self.bot_name]:
 
                 message += var + ' = ' + data[var] + '\n'
 
