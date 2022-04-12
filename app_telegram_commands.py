@@ -27,6 +27,7 @@ class TelegramCommands:
         self.telegram_handler = self.telegram_updater.dispatcher
 
         self.telegram_handler.add_handler(CommandHandler('start', self.command_start))
+        self.telegram_handler.add_handler(CommandHandler('restart', self.command_restart))
 
         self.telegram_handler.add_handler(MessageHandler(Filters.text('💰Wallets'), self.show_wallets))
         self.telegram_handler.add_handler(MessageHandler(Filters.text(self.wallet1.wallet_name), self.wallet1_operations))
@@ -75,6 +76,15 @@ class TelegramCommands:
         reply_markup = ReplyKeyboardMarkup(self.keyboards['main-menu'], resize_keyboard = True)
 
         update.message.reply_text('Welcome to the Jungle', reply_markup = reply_markup)
+
+
+    def command_restart(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+
+        update.message.reply_text('Restarting system')
+
+        exit()
 
 
     def show_wallets(self, update, context):
