@@ -118,9 +118,9 @@ class TelegramCommands:
 
         if not self.validate_user(update.message.chat_id): return
 
-        if self.bot1.turn_on == False:
+        if self.bot1.is_turn_on() == False:
 
-            self.bot1.turn_on = True
+            self.bot1.change_state_turn_on()
 
             update.message.reply_text(self.bot1.bot_name + ' started manually...')
         
@@ -133,9 +133,9 @@ class TelegramCommands:
 
         if not self.validate_user(update.message.chat_id): return
 
-        if self.bot1.turn_on == True:
+        if self.bot1.turn_on() == True:
 
-            self.bot1.turn_on = False
+            self.bot1.change_state_turn_on()
 
             update.message.reply_text(self.bot1.bot_name + ' stopped manually... Waiting')
 

@@ -64,4 +64,11 @@ class Telegram:
         return (data.pinned_message.text, data.pinned_message.message_id)
 
 
+    def edit_message_database(self, message):
+
+        message_id = self.get_message_database()[1]
+
+        self.telegram_bot.edit_message_text(message, self.database_channel, message_id)
+
+
 telegram_bot = Telegram()

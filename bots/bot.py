@@ -13,19 +13,51 @@ class Bot:
     # last_prices_limit_time = 210
     # eps = 0.01
 
-    def update_constants(self):
+    def change_state_turn_on(self):
+
+        data = json.loads(telegram_bot.get_message_database()[0])
+
+        if data[self.bot_name]['turn_on'].lower() == 'yes':
+
+            data[self.bot_name]['turn_on'] = 'no'
+        
+        else:
+
+            data[self.bot_name]['turn_on'] = 'yes'
+
+        telegram_bot.edit_message_database(str(data))
+
+
+    def is_turn_on(self):
+
+        try:
+
+            return json.loads(telegram_bot.get_message_database()[0])[self.bot_name]['turn_on'].lower() == 'yes'
+        
+        except:
+
+            telegram_bot.send('There was an error extracting the ' + self.bot_name + ' \'turn_on\' parameter in the database...')
+
+            telegram_bot.send(self.bot_name + ' stopped automatically...')
+
+            while True:
+
+                pass
+
+
+    def update_with_database(self):
 
         data = json.loads(telegram_bot.get_message_database()[0])
 
         try:
 
-            self.currency = data['currency']
+            self.currency = data[self.bot_name]['currency']
             self.symbol = self.currency + '-USDT'
-            self.investment_order_limit = float(data['investment_order_limit'])
-            self.take_profit_percent = float(data['take_profit_percent'])
-            self.stop_loss_percent = float(data['stop_loss_percent'])
-            self.last_prices_limit_time = int(data['last_prices_limit_time'])
-            self.eps = float(data['eps'])
+            self.investment_order_limit = float(data[self.bot_name]['investment_order_limit'])
+            self.take_profit_percent = float(data[self.bot_name]['take_profit_percent'])
+            self.stop_loss_percent = float(data[self.bot_name]['stop_loss_percent'])
+            self.last_prices_limit_time = int(data[self.bot_name]['last_prices_limit_time'])
+            self.eps = float(data[self.bot_name]['eps'])
 
             message = self.bot_name + ' constants were updated:\n\n'
 
@@ -52,11 +84,9 @@ class Bot:
 
         telegram_bot.send('Initializing ' + self.bot_name + '...')
 
-        self.turn_on = True
-
         self.Kc = kucoin_wallet
 
-        self.update_constants()
+        self.update_with_database()
 
         self.print_balance()
 
@@ -147,11 +177,11 @@ class Bot:
 
     def update(self):
 
-        if self.turn_on == False:
+        if self.is_turn_on() == False:
 
             telegram_bot.send(self.bot_name + ' stopped manually... Waiting')
 
-            while self.turn_on == False:
+            while self.is_turn_on() == False:
 
                 pass
 
