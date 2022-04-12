@@ -3,6 +3,7 @@ import os
 from telegram import Bot, ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from app_exception_control import ExceptionC
+from app_info import info
 
 class TelegramCommands:
 
@@ -30,6 +31,7 @@ class TelegramCommands:
 
         self.telegram_handler.add_handler(CommandHandler('start', self.command_start))
         self.telegram_handler.add_handler(CommandHandler('reboot', self.command_reboot))
+        self.telegram_handler.add_handler(CommandHandler('price', self.command_price))
 
 
         self.telegram_handler.add_handler(MessageHandler(Filters.text('💰Wallets'), self.show_wallets))
@@ -102,6 +104,22 @@ class TelegramCommands:
         update.message.reply_text('Rebooting the system')
 
         os._exit(os.EX_OK)
+
+    
+    def command_price(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+
+        currency = update.message.text.split(' ')[1]
+        price = info.get_price_currency(currency)
+
+        if price == None:
+
+            update.message.reply_text('The currency is invalid')
+        
+        else:
+
+            update.message.reply_text('The price of ' + currency + ' is ' + price + ' USDT')
 
 
     def show_wallets(self, update, context):
