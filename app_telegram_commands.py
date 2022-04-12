@@ -129,7 +129,7 @@ class TelegramCommands:
         message = ''
         message += '/start\n'
         message += '/reboot\n'
-        message += '/price currency\n'
+        message += '/price [currency]\n'
 
         update.message.reply_text(message)
 
