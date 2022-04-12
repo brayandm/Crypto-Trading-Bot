@@ -34,7 +34,9 @@ class Bot:
 
             return json.loads(telegram_bot.get_message_database()[0])[self.bot_name]['turn_on'].lower() == 'yes'
         
-        except:
+        except Exception as e:
+
+            telegram_bot.send(str(e))
 
             telegram_bot.send('There was an error extracting the ' + self.bot_name + ' \'turn_on\' parameter in the database...')
 
@@ -67,7 +69,9 @@ class Bot:
 
             telegram_bot.send(message)
 
-        except:
+        except Exception as e:
+
+            telegram_bot.send(str(e))
 
             telegram_bot.send('There was an error extracting the ' + self.bot_name + ' constants in the database...')
 
