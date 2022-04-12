@@ -21,10 +21,13 @@ bot2 = Bot('VirtualBot', wallet2)
 telegram_commands = TelegramCommands(bot1, bot2, wallet1, wallet2)
 
 thread1 = threading.Thread(target=bot1.start_bot)
-thread2 = threading.Thread(target=telegram_commands.listen)
+thread2 = threading.Thread(target=bot2.start_bot)
+thread3 = threading.Thread(target=telegram_commands.listen)
 
 thread1.start()
 thread2.start()
+thread3.start()
 
 thread1.join()
 thread2.join()
+thread3.join()
