@@ -147,7 +147,7 @@ class Kucoin:
 
     def buy_currency(self, currency, funds):
 
-        if float(self.get_balance_usdt()) < float(funds):
+        if float(self.get_balance_usdt()) < float(funds) * (1 + float(self.get_currency_taker_fee(currency))):
 
             telegram_bot.send('Insufficient usdt balance in ' + self.wallet_name + ' to buy...')
 

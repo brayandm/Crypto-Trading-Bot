@@ -60,8 +60,8 @@ class TradeVirtual:
 
         if side == 'buy':
 
-            self.wallet.data[buy_side] = str(float(self.wallet.data[buy_side]) - float(funds))
-            self.wallet.data[sell_side] = str(float(self.wallet.data[sell_side]) + float(funds) / float(price) * (1 - float(fee)))
+            self.wallet.data[buy_side] = str(float(self.wallet.data[buy_side]) - float(funds) * (1 + float(fee)))
+            self.wallet.data[sell_side] = str(float(self.wallet.data[sell_side]) + float(funds) / float(price))
 
         if side == 'sell':
 
@@ -219,7 +219,7 @@ class KucoinVirtual:
 
     def buy_currency(self, currency, funds):
 
-        if float(self.get_balance_usdt()) < float(funds):
+        if float(self.get_balance_usdt()) < float(funds) * (1 + float(self.get_currency_taker_fee(currency))):
 
             telegram_bot.send('Insufficient usdt balance in ' + self.wallet_name + ' to buy...')
 
