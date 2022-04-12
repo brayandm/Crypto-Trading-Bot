@@ -65,7 +65,7 @@ class Bot:
 
             for var in data[self.bot_name]:
 
-                message += var + ' = ' + data[var] + '\n'
+                message += var + ' = ' + data[self.bot_name][var] + '\n'
 
             telegram_bot.send(message)
 
