@@ -110,7 +110,7 @@ class TelegramCommands:
 
         if not self.validate_user(update.message.chat_id): return
 
-        currency = update.message.text.split(' ')[1]
+        currency = update.message.text.split(' ')[1].upper()
         price = info.get_price_currency(currency)
 
         if price == None:
