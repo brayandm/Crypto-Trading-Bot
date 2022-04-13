@@ -3,7 +3,7 @@ import json
 from app_telegram import telegram_bot
 
 
-class Database:
+class DatabaseTelegram:
 
     def exists_database_path(self, *args):
 
@@ -62,4 +62,4 @@ class Database:
         telegram_bot.edit_message_database(json.dumps(data))
 
 
-database = Database()
+database_telegram = DatabaseTelegram()

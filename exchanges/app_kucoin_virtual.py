@@ -2,7 +2,7 @@ from kucoin.client import Market
 from kucoin.client import Trade
 from kucoin.client import User
 
-from app_database import database
+from app_database_telegram import database_telegram
 from app_telegram import telegram_bot
 from app_exception_control import ExceptionC
 from app_exception_control import ExceptionC
@@ -16,25 +16,25 @@ class WalletVirtual:
 
     def get_balance_all_currencies(self):
 
-        if database.exists_database_path(self.wallet_name) == False:
+        if database_telegram.exists_database_path(self.wallet_name) == False:
 
-            database.write_database_path(self.wallet_name, {})
+            database_telegram.write_database_path(self.wallet_name, {})
 
-        return database.get_database_path(self.wallet_name)
+        return database_telegram.get_database_path(self.wallet_name)
 
 
     def get_balance_currency(self, currency):
 
-        if database.exists_database_path(self.wallet_name, currency) == False:
+        if database_telegram.exists_database_path(self.wallet_name, currency) == False:
 
-            database.write_database_path(self.wallet_name, currency, '0')
+            database_telegram.write_database_path(self.wallet_name, currency, '0')
 
-        return database.get_database_path(self.wallet_name, currency)
+        return database_telegram.get_database_path(self.wallet_name, currency)
 
 
     def set_balance_currency(self, currency, value):
 
-        database.write_database_path(self.wallet_name, currency, value)
+        database_telegram.write_database_path(self.wallet_name, currency, value)
 
 
 class UserVirtual:

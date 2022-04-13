@@ -1,6 +1,4 @@
-import json
-
-from app_database import database
+from app_database_telegram import database_telegram
 from app_telegram import telegram_bot
 from app_exception_control import ExceptionC
 
@@ -8,22 +6,22 @@ class Bot:
 
     def change_state_turn_on(self):
 
-        state = database.get_database_path(self.bot_name, 'turn_on').lower()
+        state = database_telegram.get_database_path(self.bot_name, 'turn_on').lower()
 
         if state == 'yes':
 
-            database.write_database_path(self.bot_name, 'turn_on', 'no')
+            database_telegram.write_database_path(self.bot_name, 'turn_on', 'no')
 
         else:
 
-            database.write_database_path(self.bot_name, 'turn_on', 'yes')
+            database_telegram.write_database_path(self.bot_name, 'turn_on', 'yes')
 
 
     def is_turn_on(self):
 
         try:
 
-            return database.get_database_path(self.bot_name, 'turn_on').lower() == 'yes'
+            return database_telegram.get_database_path(self.bot_name, 'turn_on').lower() == 'yes'
         
         except Exception as e:
 
@@ -40,7 +38,7 @@ class Bot:
 
     def update_with_database(self):
 
-        data = database.get_database_path(self.bot_name)
+        data = database_telegram.get_database_path(self.bot_name)
 
         try:
 
