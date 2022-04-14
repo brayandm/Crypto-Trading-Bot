@@ -143,6 +143,10 @@ class KucoinVirtual:
 
     def round_number(self, number, precision):
 
+        if int(float(number) * (10**precision)) <= 1:
+
+            number = '0'
+
         cad = str(number)
 
         point_position = -1
@@ -158,7 +162,7 @@ class KucoinVirtual:
             point_position = len(cad)
 
             cad += '.'
-            
+
         while point_position + precision + 1 < len(cad):
 
             cad = cad[0:-1]
