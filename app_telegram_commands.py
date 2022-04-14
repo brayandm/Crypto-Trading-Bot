@@ -193,8 +193,8 @@ class TelegramCommands:
 
             info.generate_image_currency_prices(currency, filename, days)
 
-            update.message.reply_photo(open(filename, 'rb'))
-            os.remove(filename)
+            update.message.reply_photo(open(filename + '.png', 'rb'))
+            os.remove(filename + '.png')
 
         except:
 
@@ -202,8 +202,8 @@ class TelegramCommands:
 
             info.generate_image_currency_prices(currency, filename)
 
-            update.message.reply_photo(open(filename, 'rb'))
-            os.remove(filename)
+            update.message.reply_photo(open(filename + '.png', 'rb'))
+            os.remove(filename + '.png')
         
 
     def show_help(self, update, context):

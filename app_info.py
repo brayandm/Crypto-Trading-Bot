@@ -173,10 +173,10 @@ class Info:
             x.append(i)
             y.append(float(data[i]))
 
-        # plt.figure()
         plt.plot(ma30x, ma30y, color = 'orange', linestyle = '-')
         plt.plot(x, y, color = 'blue', linestyle = '-')
         plt.savefig(filename)
+        plt.close()
 
 
 info = Info()
