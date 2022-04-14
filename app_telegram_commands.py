@@ -189,7 +189,7 @@ class TelegramCommands:
         
             days = update.message.text.split()[2].upper()
 
-            filename = str(update.message.chat_id) + '_' + str(update.message.message_id) + '.png'
+            filename = str(update.message.chat_id) + '_' + str(update.message.message_id)
 
             info.generate_image_currency_prices(currency, filename, days)
 
@@ -198,7 +198,7 @@ class TelegramCommands:
 
         except:
 
-            filename = str(update.message.chat_id) + '_' + str(update.message.message_id) + '.png'
+            filename = str(update.message.chat_id) + '_' + str(update.message.message_id)
 
             info.generate_image_currency_prices(currency, filename)
 
