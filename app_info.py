@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-
 from kucoin.client import Market
 
 from app_telegram import telegram_bot
@@ -173,11 +171,11 @@ class Info:
             x.append(i)
             y.append(float(data[i]))
 
-        graph = plt
-        graph.plot(ma30x, ma30y, color = 'orange', linestyle = '-')
-        graph.plot(x, y, color = 'blue', linestyle = '-')
-        graph.savefig(filename)
-        graph.close()
+        import matplotlib.pyplot as plt
+
+        plt.plot(ma30x, ma30y, color = 'orange', linestyle = '-')
+        plt.plot(x, y, color = 'blue', linestyle = '-')
+        plt.savefig(filename)
 
 
 info = Info()
