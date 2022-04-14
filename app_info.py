@@ -157,7 +157,7 @@ class Info:
 
         for i in range(len(data)):
 
-            cumulative_table.append(data[i])
+            cumulative_table.append(float(data[i]))
             
         ma30x = []
         ma30y = []
@@ -169,12 +169,12 @@ class Info:
         for i in range(MA30-1, len(data)):
 
             ma30x.append(i)
-            ma30y.append(cumulative_table.sum(i-MA30+1, i))
+            ma30y.append(cumulative_table.sum(i-MA30+1, i) / MA30)
 
         for i in range(MA20-1, len(data)):
 
             ma20x.append(i)
-            ma20y.append(cumulative_table.sum(i-MA20+1, i))
+            ma20y.append(cumulative_table.sum(i-MA20+1, i) / MA20)
 
         for i in range(len(data)):
 
