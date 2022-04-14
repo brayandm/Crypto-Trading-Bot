@@ -4,6 +4,7 @@ from telegram import Bot, ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from app_exception_control import ExceptionC
 from app_info import info
+from app_database import database
 
 class TelegramCommands:
 
@@ -32,6 +33,9 @@ class TelegramCommands:
         self.telegram_handler.add_handler(CommandHandler('start', self.command_start))
         self.telegram_handler.add_handler(CommandHandler('reboot', self.command_reboot))
         self.telegram_handler.add_handler(CommandHandler('price', self.command_price))
+        self.telegram_handler.add_handler(CommandHandler('dbupdate', self.command_dbupdate))
+        self.telegram_handler.add_handler(CommandHandler('dbclear', self.command_dbclear))
+        self.telegram_handler.add_handler(CommandHandler('dbprint', self.command_dbprint))
 
 
         self.telegram_handler.add_handler(MessageHandler(Filters.text('💰Wallets'), self.show_wallets))
@@ -121,6 +125,51 @@ class TelegramCommands:
         else:
 
             update.message.reply_text('The price of ' + currency + ' is ' + price + ' USDT')
+
+    
+    def command_dbclear(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+
+        database.clear()
+
+        update.message.reply_text('The database was cleaned')
+
+
+    def command_dbupdate(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+
+        currency = update.message.text.split()[1].upper()
+
+        try:
+        
+            days = update.message.text.split()[2].upper()
+
+            database.update_currency_days_before(currency, days)
+
+            update.message.reply_text('The ' + currency + ' database was updated with the last ' + days + ' days')
+
+        except:
+
+            database.update_currency(currency)
+            
+            update.message.reply_text('The ' + currency + ' database was updated up to this point')
+
+
+    def command_dbprint(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+
+        currency = update.message.text.split()[1].upper()
+
+        filename = str(update.message.chat_id) + '_' + str(update.message.message_id) + '.png'
+
+        info.generate_image_currency_prices(currency, filename)
+
+        update.message.reply_photo(open(filename, 'rb'))
+        os.remove(filename)
+
 
     def show_help(self, update, context):
 

@@ -1,7 +1,10 @@
+import matplotlib.pyplot as plt
+
 from kucoin.client import Market
 
 from app_telegram import telegram_bot
 from app_exception_control import ExceptionC
+from app_database import database
 
 class Info:
 
@@ -108,5 +111,21 @@ class Info:
 
         return arr
 
+    def generate_image_currency_prices(self, currency, filename):
+
+        data = reversed(database.get_currency(currency))
+
+        x = []
+        y = []
+
+        for i in range(len(data)):
+
+            x.append(i)
+            y.append(data[i])
+
+        ax = plt.subplots()
+        ax.plot(x, y)
+        plt.savefig(filename)
+        
 
 info = Info()
