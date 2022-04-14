@@ -121,7 +121,7 @@ class Info:
         for i in range(len(data)):
 
             x.append(i)
-            y.append(data[i])
+            y.append(float(data[i]))
 
         fig, ax = plt.subplots()
         ax.plot(x, y)
