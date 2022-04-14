@@ -32,7 +32,7 @@ class Database:
 
         data = []
 
-        for object in reversed(list(collection[currency].find({'time': {'$gt': tlast - int(days) * self.day_in_minutes}}).sort('time'))):
+        for object in reversed(list(collection.find({'time': {'$gt': tlast - int(days) * self.day_in_minutes}}).sort('time'))):
 
             data.append(object['price'])
 
