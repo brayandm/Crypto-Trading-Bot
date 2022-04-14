@@ -6,6 +6,34 @@ from app_telegram import telegram_bot
 from app_exception_control import ExceptionC
 from app_database import database
 
+
+class CumulativeTable:
+
+    def __init__(self):
+
+        self.tacum = []
+
+
+    def append(self, x):
+
+        if len(self.tacum) == 0:
+
+            self.tacum.append(x)
+
+        else:
+
+            self.tacum.append(self.tacum[-1] + x)
+
+
+    def sum(self, a, b):
+
+        if a == 0:
+
+            return self.tacum[b] 
+
+        return self.tacum[b] - self.tacum[a-1]
+
+
 class Info:
 
     def __init__(self):
@@ -111,19 +139,42 @@ class Info:
 
         return arr
 
-    def generate_image_currency_prices(self, currency, filename):
 
-        data = database.get_currency(currency)
+    def generate_image_currency_prices(self, currency, filename, days = None):
 
+        if days == None:
+        
+            data = list(reversed(database.get_currency(currency)))
+
+        else:
+
+            data = list(reversed(database.get_currency_days_before(currency, days)))
+
+        MA30 = 60*24*30
+
+        cumulative_table = CumulativeTable()
+
+        for i in range(len(data)):
+
+            cumulative_table.append(data[i])
+            
+        ma30x = []
+        ma30y = []
         x = []
         y = []
+
+        for i in range(MA30-1, len(data)):
+
+            ma30x.append(i)
+            ma30y.append(cumulative_table.sum(i-MA30+1, i))
 
         for i in range(len(data)):
 
             x.append(i)
             y.append(float(data[i]))
 
-        plt.plot(x,y,'-')
+        plt.plot(ma30x, ma30y, color = 'orange', linestyle = '-')
+        plt.plot(x, y, color = 'blue', linestyle = '-')
         plt.savefig(filename)
 
 

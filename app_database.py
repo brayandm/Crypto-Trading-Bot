@@ -22,6 +22,23 @@ class Database:
             self.database_mongodb[name].drop()
 
 
+    def get_currency_days_before(self, currency, days):
+
+        self.update_currency_days_before(currency, days)
+
+        collection = self.database_mongodb[currency]
+
+        tlast = int(list(collection.find().sort('time'))[-1]['time'])
+
+        data = []
+
+        for object in reversed(list(collection[currency].find({'time': {'$gt': tlast - int(days) * self.day_in_minutes}}).sort('time'))):
+
+            data.append(object['price'])
+
+        return data
+
+
     def get_currency(self, currency):
 
         self.update_currency(currency)
@@ -43,7 +60,14 @@ class Database:
 
         tlast = int(list(collection.find().sort('time'))[-1]['time'])
 
-        collection.delete_many({'time': { '$lt': tlast - days * self.day_in_minutes + 1} })
+        collection.delete_many({'time': {'$lt': tlast - int(days) * self.day_in_minutes + 1}})
+
+
+    def delete_currency(self, currency):
+
+        collection = self.database_mongodb[currency]
+
+        collection.drop()
 
     
     def update_currency_days_before(self, currency, days):
