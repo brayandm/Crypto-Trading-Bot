@@ -21,31 +21,14 @@ bot1 = Bot('KcBot', wallet1)
 bot2 = Bot('VirtualBot', wallet2)
 telegram_commands = TelegramCommands(bot1, bot2, wallet1, wallet2)
 
-
-def stop_all():
-
-    while True:
-
-        if telegram_bot.get_message_status()[0].lower() == 'stop':
-
-            telegram_bot.send('Rebooting the system')
-
-            os._exit(os.EX_OK)
-
-        time.sleep(1)
-
-
 thread1 = threading.Thread(target=bot1.start_bot)
 thread2 = threading.Thread(target=bot2.start_bot)
 thread3 = threading.Thread(target=telegram_commands.listen)
-thread4 = threading.Thread(target=stop_all)
 
 thread1.start()
 thread2.start()
 thread3.start()
-thread4.start()
 
 thread1.join()
 thread2.join()
 thread3.join()
-thread4.join()

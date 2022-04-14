@@ -189,21 +189,21 @@ class TelegramCommands:
         
             days = update.message.text.split()[2].upper()
 
-            filename = str(update.message.chat_id) + '_' + str(update.message.message_id)
+            filename = str(update.message.chat_id) + '_' + str(update.message.message_id) + '.png'
 
             info.generate_image_currency_prices(currency, filename, days)
 
-            update.message.reply_photo(open(filename + '.png', 'rb'))
-            os.remove(filename + '.png')
+            update.message.reply_photo(open(filename, 'rb'))
+            os.remove(filename)
 
         except:
 
-            filename = str(update.message.chat_id) + '_' + str(update.message.message_id)
+            filename = str(update.message.chat_id) + '_' + str(update.message.message_id) + '.png'
 
             info.generate_image_currency_prices(currency, filename)
 
-            update.message.reply_photo(open(filename + '.png', 'rb'))
-            os.remove(filename + '.png')
+            update.message.reply_photo(open(filename, 'rb'))
+            os.remove(filename)
         
 
     def show_help(self, update, context):
