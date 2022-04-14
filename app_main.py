@@ -28,6 +28,8 @@ def stop_all():
 
         if telegram_bot.get_message_status()[0].lower() == 'stop':
 
+            telegram_bot.send('Rebooting the system')
+
             os._exit(os.EX_OK)
 
         time.sleep(1)
