@@ -177,6 +177,7 @@ class Info:
         graph.plot(ma30x, ma30y, color = 'orange', linestyle = '-')
         graph.plot(x, y, color = 'blue', linestyle = '-')
         graph.savefig(filename)
+        graph.close()
 
 
 info = Info()
