@@ -151,6 +151,7 @@ class Info:
             data = list(reversed(database.get_currency_days_before(currency, days)))
 
         MA30 = 60*24*30
+        MA20 = 60*24*20
 
         cumulative_table = CumulativeTable()
 
@@ -160,6 +161,8 @@ class Info:
             
         ma30x = []
         ma30y = []
+        ma20x = []
+        ma20y = []
         x = []
         y = []
 
@@ -168,6 +171,11 @@ class Info:
             ma30x.append(i)
             ma30y.append(cumulative_table.sum(i-MA30+1, i))
 
+        for i in range(MA20-1, len(data)):
+
+            ma20x.append(i)
+            ma20y.append(cumulative_table.sum(i-MA20+1, i))
+
         for i in range(len(data)):
 
             x.append(i)
@@ -175,6 +183,7 @@ class Info:
 
         plt.figure()
         plt.plot(ma30x, ma30y, color = 'orange', linestyle = '-')
+        plt.plot(ma20x, ma20y, color = 'yellow', linestyle = '-')
         plt.plot(x, y, color = 'blue', linestyle = '-')
         plt.savefig(filename)
         
