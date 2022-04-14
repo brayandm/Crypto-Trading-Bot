@@ -173,7 +173,7 @@ class Info:
             x.append(i)
             y.append(float(data[i]))
 
-        graph = plt()
+        graph = plt
         graph.plot(ma30x, ma30y, color = 'orange', linestyle = '-')
         graph.plot(x, y, color = 'blue', linestyle = '-')
         graph.savefig(filename)
