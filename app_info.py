@@ -123,8 +123,7 @@ class Info:
             x.append(i)
             y.append(float(data[i]))
 
-        fig, ax = plt.subplots()
-        ax.plot(x, y)
+        plt.plot(x,y,'-')
         plt.savefig(filename)
 
 
