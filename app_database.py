@@ -163,7 +163,7 @@ class Database:
 
             for j in range(len(results[i])):
 
-                data.append({'time': str(int(results[i][j][0]) // 60), 'price': results[i][j][2]})
+                data.append({'time': int(results[i][j][0]) // 60, 'price': results[i][j][2]})
 
         return data
 
