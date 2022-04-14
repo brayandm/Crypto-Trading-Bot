@@ -44,7 +44,7 @@ class Kucoin:
 
     def round_number(self, number, precision):
 
-        if int(float(number) * (10**precision)) <= 1:
+        if abs(int(float(number) * (10**precision))) <= 1:
 
             number = '0'
 
