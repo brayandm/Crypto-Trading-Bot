@@ -152,6 +152,7 @@ class Info:
 
         MA30 = 60*24*30
         MA20 = 60*24*20
+        MA10 = 60*24*10
 
         cumulative_table = CumulativeTable()
 
@@ -163,6 +164,8 @@ class Info:
         ma30y = []
         ma20x = []
         ma20y = []
+        ma10x = []
+        ma10y = []
         x = []
         y = []
 
@@ -176,14 +179,20 @@ class Info:
             ma20x.append(i)
             ma20y.append(cumulative_table.sum(i-MA20+1, i) / MA20)
 
+        for i in range(MA10-1, len(data)):
+
+            ma10x.append(i)
+            ma10y.append(cumulative_table.sum(i-MA10+1, i) / MA10)
+
         for i in range(len(data)):
 
             x.append(i)
             y.append(float(data[i]))
 
         plt.figure()
-        plt.plot(ma30x, ma30y, color = 'orange', linestyle = '-')
-        plt.plot(ma20x, ma20y, color = 'yellow', linestyle = '-')
+        plt.plot(ma30x, ma30y, color = 'red', linestyle = '-', linewidth = 0.5)
+        plt.plot(ma20x, ma20y, color = 'orange', linestyle = '-', linewidth = 0.5)
+        plt.plot(ma10x, ma20y, color = 'yellow', linestyle = '-', linewidth = 0.5)
         plt.plot(x, y, color = 'blue', linestyle = '-')
         plt.savefig(filename)
         
