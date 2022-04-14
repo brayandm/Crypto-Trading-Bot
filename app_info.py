@@ -113,7 +113,7 @@ class Info:
 
     def generate_image_currency_prices(self, currency, filename):
 
-        data = reversed(database.get_currency(currency))
+        data = database.get_currency(currency)
 
         x = []
         y = []
@@ -123,9 +123,9 @@ class Info:
             x.append(i)
             y.append(data[i])
 
-        ax = plt.subplots()
+        fig, ax = plt.subplots()
         ax.plot(x, y)
         plt.savefig(filename)
-        
+
 
 info = Info()
