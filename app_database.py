@@ -55,7 +55,7 @@ class Database:
         tfirst = int(list(collection.find().sort('time'))[0]['time'])
         tlast = int(list(collection.find().sort('time'))[-1]['time'])
 
-        tstart = tlast - days * self.day_in_minutes + 1
+        tstart = tlast - int(days) * self.day_in_minutes + 1
         tend = tfirst-1
 
         if tstart <= tend:
