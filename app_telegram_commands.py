@@ -344,7 +344,7 @@ class TelegramCommands:
 
                     fee = Decimal('0.1') / Decimal('100')
 
-                    gain = (ratio - Decimal('1')) - fee * (ratio + Decimal('1'))
+                    gain = ((ratio - Decimal('1')) - fee * (ratio + Decimal('1'))) * Decimal('100')
 
                     total_gain += gain
 
