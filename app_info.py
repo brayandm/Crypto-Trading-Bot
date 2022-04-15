@@ -58,7 +58,7 @@ class Info:
 
             if bucket['symbol'] == self.get_symbol_from_currency(currency):
 
-                return (len(bucket['baseIncrement']) - 2, len(bucket['priceIncrement']) - 2)
+                return (len(bucket['baseIncrement']) - 2, len(bucket['quoteIncrement']) - 2)
     
         telegram_bot.send('Symbol not found in ' + self.wallet_name + '...')
 
