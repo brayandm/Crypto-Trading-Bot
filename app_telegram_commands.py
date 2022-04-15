@@ -324,18 +324,29 @@ class TelegramCommands:
 
         message = ''
 
+        total_gain = Decimal('0')
+
         for i in range(len(data)):
 
             if data[i][0] == 'buy':
 
-                message += 'buy -> ' + data[i][1] + '\n'
+                if i+1 != len(data):
+
+                    message += 'buy -> ' +  info.round_number(data[i][1], 4) + '\n'
 
             else:
 
                 if i > 0:
 
-                    message += 'sell -> ' + data[i][1] + '\n'
-                    message += 'gain -> ' + str((Decimal(data[i][1]) - Decimal(data[i-1][1])) / Decimal(data[i-1][1]) * Decimal('100')) + '%\n'
+                    message += 'sell -> ' + info.round_number(data[i][1], 4) + '\n'
+
+                    gain = (Decimal(data[i][1]) - Decimal(data[i-1][1])) / Decimal(data[i-1][1]) * Decimal('100')
+
+                    total_gain += gain
+
+                    message += 'gain -> ' + info.round_number(str(gain), 2) + '%\n\n'
+
+        message += '\n' + 'total gain -> ' + info.round_number(str(total_gain), 2) + '%'
 
         update.message.reply_text(message)
 
