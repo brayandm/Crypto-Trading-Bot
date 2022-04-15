@@ -201,6 +201,13 @@ class Info:
             x = x[self.day_in_minutes * 30:]
             y = y[self.day_in_minutes * 30:]
 
+            for i in range(len(x)):
+
+                ma30x[i] -= 30
+                ma20x[i] -= 30
+                ma10x[i] -= 30
+                x[i] -= 30
+
         plt.figure()
         plt.plot(ma30x, ma30y, color = 'red', linestyle = '-', linewidth = 0.8)
         plt.plot(ma20x, ma20y, color = 'orange', linestyle = '-', linewidth = 0.8)
