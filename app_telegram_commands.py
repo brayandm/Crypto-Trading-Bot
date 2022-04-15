@@ -308,7 +308,9 @@ class TelegramCommands:
 
         if not self.validate_user(update.message.chat_id): return
 
-        update.message.reply_text(json.dumps(self.wallet1.get_order_list()))
+        for x in self.wallet1.get_order_list()['items']:
+
+            update.message.reply_text(json.dumps(x))
 
     
     def wallet2_operations(self, update, context):
