@@ -2,7 +2,7 @@ import pymongo
 import os
 
 import threading
-from threading import Lock
+from threading import RLock
 
 from kucoin.client import Market
 from app_exception_control import ExceptionC
@@ -15,13 +15,16 @@ class Database:
         self.database_mongodb = self.client[os.environ['database']]
         self.client_market = Market()
         self.day_in_minutes = 60*24
+        self.dblock = RLock()
 
 
     def clear(self):
 
-        for name in self.database_mongodb.list_collection_names():
+        with self.dblock:
 
-            self.database_mongodb[name].drop()
+            for name in self.database_mongodb.list_collection_names():
+
+                self.database_mongodb[name].drop()
 
 
     def get_currency_days_before(self, currency, days):
@@ -56,56 +59,64 @@ class Database:
 
     def delete_currency_days_before(self, currency, days):
 
-        self.update_currency(currency)
+        with self.dblock:
 
-        collection = self.database_mongodb[currency]
+            self.update_currency(currency)
 
-        tlast = int(list(collection.find().sort('time'))[-1]['time'])
+            collection = self.database_mongodb[currency]
 
-        collection.delete_many({'time': {'$lt': tlast - int(days) * self.day_in_minutes + 1}})
+            tlast = int(list(collection.find().sort('time'))[-1]['time'])
+
+            collection.delete_many({'time': {'$lt': tlast - int(days) * self.day_in_minutes + 1}})
 
 
     def delete_currency(self, currency):
 
-        collection = self.database_mongodb[currency]
+        with self.dblock:
 
-        collection.drop()
+            collection = self.database_mongodb[currency]
+
+            collection.drop()
 
     
     def update_currency_days_before(self, currency, days):
 
-        self.update_currency(currency)
+        with self.dblock:
 
-        collection = self.database_mongodb[currency]
-        
-        tfirst = int(list(collection.find().sort('time'))[0]['time'])
-        tlast = int(list(collection.find().sort('time'))[-1]['time'])
+            self.update_currency(currency)
 
-        tstart = tlast - int(days) * self.day_in_minutes + 1
-        tend = tfirst-1
+            collection = self.database_mongodb[currency]
+            
+            tfirst = int(list(collection.find().sort('time'))[0]['time'])
+            tlast = int(list(collection.find().sort('time'))[-1]['time'])
 
-        if tstart <= tend:
+            tstart = tlast - int(days) * self.day_in_minutes + 1
+            tend = tfirst-1
 
-            collection.insert_many(self.get_minutes_prices(currency, tstart, tend))
+            if tstart <= tend:
+
+                collection.insert_many(self.get_minutes_prices(currency, tstart, tend))
 
 
     def update_currency(self, currency):
 
-        collection = self.database_mongodb[currency]
+        with self.dblock:
 
-        if collection.find_one({}) == None:
+            collection = self.database_mongodb[currency]
 
-            collection.insert_one(self.get_last_minutes_prices(currency))
+            if collection.find_one({}) == None:
 
-        tlast = int(list(collection.find().sort('time'))[-1]['time'])
-        tnow = self.get_server_time_minutes()
+                collection.insert_one(self.get_last_minutes_prices(currency))
 
-        tstart = tlast+1
-        tend = tnow-1
+            tlast = int(list(collection.find().sort('time'))[-1]['time'])
+            tnow = self.get_server_time_minutes()
 
-        if tstart <= tend:
+            tstart = tlast+1
+            tend = tnow-1
 
-            collection.insert_many(self.get_minutes_prices(currency, tstart, tend))
+            if tstart <= tend:
+
+                collection.insert_many(self.get_minutes_prices(currency, tstart, tend))
 
 
     def get_server_time_minutes(self):
@@ -124,7 +135,7 @@ class Database:
 
     def get_minutes_prices(self, currency, start, end):
 
-        thlock = Lock()
+        thlock = RLock()
 
         results = {}
 

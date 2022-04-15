@@ -190,10 +190,10 @@ class Info:
             y.append(float(data[i]))
 
         plt.figure()
-        plt.plot(ma30x, ma30y, color = 'red', linestyle = '-', linewidth = 0.5)
-        plt.plot(ma20x, ma20y, color = 'orange', linestyle = '-', linewidth = 0.5)
-        plt.plot(ma10x, ma10y, color = 'yellow', linestyle = '-', linewidth = 0.5)
-        plt.plot(x, y, color = 'blue', linestyle = '-', linewidth = 0.5)
+        plt.plot(ma30x, ma30y, color = 'red', linestyle = '-', linewidth = 0.8)
+        plt.plot(ma20x, ma20y, color = 'orange', linestyle = '-', linewidth = 0.8)
+        plt.plot(ma10x, ma10y, color = 'yellow', linestyle = '-', linewidth = 0.8)
+        plt.plot(x, y, color = 'blue', linestyle = '-', linewidth = 0.8)
         plt.savefig(filename)
         
 

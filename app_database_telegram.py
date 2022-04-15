@@ -1,9 +1,17 @@
 import json
 
+import threading
+from threading import RLock
+
 from app_telegram import telegram_bot
 
 
 class DatabaseTelegram:
+
+    def __init__(self):
+
+        self.dblock = RLock()
+
 
     def exists_database_path(self, *args):
 
@@ -35,31 +43,33 @@ class DatabaseTelegram:
 
     def write_database_path(self, *args):
 
-        if len(args) == 0:
+        with self.dblock:
 
-            return
+            if len(args) == 0:
 
-        def recursive_write_database_path(data, *args):
+                return
 
-            if len(args) == 1:
+            def recursive_write_database_path(data, *args):
 
-                return args[0]
+                if len(args) == 1:
 
-            try:
+                    return args[0]
 
-                data[args[0]]
+                try:
 
-            except:
+                    data[args[0]]
 
-                data[args[0]] = {}
+                except:
 
-            data[args[0]] = recursive_write_database_path(data[args[0]], *args[1:])
+                    data[args[0]] = {}
 
-            return data
+                data[args[0]] = recursive_write_database_path(data[args[0]], *args[1:])
 
-        data = recursive_write_database_path(json.loads(telegram_bot.get_message_database()[0]), *args)
+                return data
 
-        telegram_bot.edit_message_database(json.dumps(data))
+            data = recursive_write_database_path(json.loads(telegram_bot.get_message_database()[0]), *args)
+
+            telegram_bot.edit_message_database(json.dumps(data))
 
 
 database_telegram = DatabaseTelegram()

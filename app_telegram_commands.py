@@ -33,10 +33,10 @@ class TelegramCommands:
         self.telegram_handler.add_handler(CommandHandler('start', self.command_start))
         self.telegram_handler.add_handler(CommandHandler('reboot', self.command_reboot))
         self.telegram_handler.add_handler(CommandHandler('price', self.command_price))
+        self.telegram_handler.add_handler(CommandHandler('plot', self.command_plot))
         self.telegram_handler.add_handler(CommandHandler('dbclear', self.command_dbclear))
         self.telegram_handler.add_handler(CommandHandler('dbupdate', self.command_dbupdate))
         self.telegram_handler.add_handler(CommandHandler('dbdelete', self.command_dbdelete))
-        self.telegram_handler.add_handler(CommandHandler('dbprint', self.command_dbprint))
 
 
         self.telegram_handler.add_handler(MessageHandler(Filters.text('💰Wallets'), self.show_wallets))
@@ -127,6 +127,33 @@ class TelegramCommands:
 
             update.message.reply_text('The price of ' + currency + ' is ' + price + ' USDT')
 
+
+    def command_plot(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+
+        currency = update.message.text.split()[1].upper()
+
+        try:
+        
+            days = update.message.text.split()[2].upper()
+
+            filename = str(update.message.chat_id) + '_' + str(update.message.message_id) + '.png'
+
+            info.generate_image_currency_prices(currency, filename, days)
+
+            update.message.reply_photo(open(filename, 'rb'))
+            os.remove(filename)
+
+        except:
+
+            filename = str(update.message.chat_id) + '_' + str(update.message.message_id) + '.png'
+
+            info.generate_image_currency_prices(currency, filename)
+
+            update.message.reply_photo(open(filename, 'rb'))
+            os.remove(filename)
+
     
     def command_dbclear(self, update, context):
 
@@ -177,33 +204,6 @@ class TelegramCommands:
             database.delete_currency(currency)
             
             update.message.reply_text('The ' + currency + ' database was deleted')
-
-
-    def command_dbprint(self, update, context):
-
-        if not self.validate_user(update.message.chat_id): return
-
-        currency = update.message.text.split()[1].upper()
-
-        try:
-        
-            days = update.message.text.split()[2].upper()
-
-            filename = str(update.message.chat_id) + '_' + str(update.message.message_id) + '.png'
-
-            info.generate_image_currency_prices(currency, filename, days)
-
-            update.message.reply_photo(open(filename, 'rb'))
-            os.remove(filename)
-
-        except:
-
-            filename = str(update.message.chat_id) + '_' + str(update.message.message_id) + '.png'
-
-            info.generate_image_currency_prices(currency, filename)
-
-            update.message.reply_photo(open(filename, 'rb'))
-            os.remove(filename)
         
 
     def show_help(self, update, context):
@@ -215,10 +215,10 @@ class TelegramCommands:
         message += '/start\n'
         message += '/reboot\n'
         message += '/price [currency]\n'
+        message += '/plot [currency] [days]\n'
         message += '/dbclear\n'
         message += '/dbupdate [currency] [days]\n'
         message += '/dbdelete [currency] [days]\n'
-        message += '/dbprint [currency] [days]\n'
 
         update.message.reply_text(message)
 
