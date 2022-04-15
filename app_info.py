@@ -1,3 +1,9 @@
+import app_constants
+import decimal
+from decimal import Decimal
+
+decimal.getcontext().prec = app_constants.FLOATING_PRECISION
+
 import matplotlib.pyplot as plt
 
 from kucoin.client import Market
@@ -58,7 +64,7 @@ class Info:
 
             if bucket['symbol'] == self.get_symbol_from_currency(currency):
 
-                return (len(bucket['baseIncrement']) - 2, len(bucket['quoteIncrement']) - 2)
+                return (bucket['baseIncrement'], bucket['quoteIncrement'])
     
         telegram_bot.send('Symbol not found in ' + self.wallet_name + '...')
 
@@ -71,45 +77,19 @@ class Info:
 
     def round_number(self, number, precision):
 
-        cad = str(number)
+        exp10 = Decimal('1') / (Decimal('10') ** Decimal(precision))
 
-        point_position = -1
-
-        for i in range(len(cad)):
-
-            if cad[i] == '.':
-
-                point_position = i
-        
-        if point_position == -1:
-
-            point_position = len(cad)
-
-            cad += '.'
-
-        while point_position + precision + 1 < len(cad):
-
-            cad = cad[0:-1]
-
-        while len(cad) < point_position + precision + 1:
-
-            cad += '0'
-
-        if cad[-1] == '.':
-
-            cad = cad[0:-1]
-        
-        return cad
+        return str(Decimal(number).quantize(exp10, rounding = decimal.ROUND_DOWN))
 
 
     def round_number_base(self, currency, number):
 
-        return self.round_number(number, self.get_constant_round(currency)[0])
+        return str(Decimal(number).quantize(Decimal(self.get_constant_round(currency)[0]), rounding = decimal.ROUND_DOWN))
 
 
-    def round_number_price(self, currency, number):
+    def round_number_quote(self, currency, number):
 
-        return self.round_number(number, self.get_constant_round(currency)[1])
+        return str(Decimal(number).quantize(Decimal(self.get_constant_round(currency)[1]), rounding = decimal.ROUND_DOWN))
 
 
     def get_price_currency(self, currency):

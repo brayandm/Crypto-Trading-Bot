@@ -1,3 +1,9 @@
+import app_constants
+import decimal
+from decimal import Decimal
+
+decimal.getcontext().prec = app_constants.FLOATING_PRECISION
+
 from kucoin.client import Market
 from kucoin.client import Trade
 from kucoin.client import User
@@ -77,6 +83,40 @@ class TradeVirtual:
         return ExceptionC.with_send(self.client_market.get_24h_stats, symbol = symbol)['takerFeeRate']
 
 
+    def get_constant_round(self, currency):
+
+        for bucket in ExceptionC.with_send(self.client_market.get_symbol_list):
+
+            if bucket['symbol'] == self.get_symbol_from_currency(currency):
+
+                return (bucket['baseIncrement'], bucket['quoteIncrement'])
+    
+        telegram_bot.send('Symbol not found in ' + self.wallet_name + '...')
+
+        telegram_bot.send('Bot in ' + self.wallet_name + ' stopped automatically...')
+
+        while True:
+
+            pass
+
+
+    def round_number(self, number, precision):
+
+        exp10 = Decimal('1') / (Decimal('10') ** Decimal(precision))
+
+        return str(Decimal(number).quantize(exp10, rounding = decimal.ROUND_DOWN))
+
+
+    def round_number_base(self, currency, number):
+
+        return str(Decimal(number).quantize(Decimal(self.get_constant_round(currency)[0]), rounding = decimal.ROUND_DOWN))
+
+
+    def round_number_quote(self, currency, number):
+
+        return str(Decimal(number).quantize(Decimal(self.get_constant_round(currency)[1]), rounding = decimal.ROUND_DOWN))
+
+
     def create_market_order(self, symbol = None, side = None, funds = None, size = None):
 
         sell_side = symbol.split('-')[0]
@@ -87,13 +127,19 @@ class TradeVirtual:
 
         if side == 'buy':
 
-            self.wallet.set_balance_currency(buy_side, str(float(self.wallet.get_balance_currency(buy_side)) - float(funds) * (1 + float(fee))))
-            self.wallet.set_balance_currency(sell_side, str(float(self.wallet.get_balance_currency(sell_side)) + float(funds) / float(price)))
+            new_balance_usdt = str(Decimal(self.wallet.get_balance_currency(buy_side)) - Decimal(funds) * (Decimal('1') + Decimal(fee)))
+            new_balance_currency = str(Decimal(self.wallet.get_balance_currency(sell_side)) + Decimal(funds) / Decimal(price))
+
+            self.wallet.set_balance_currency(buy_side, self.round_number_quote(new_balance_usdt))
+            self.wallet.set_balance_currency(sell_side, self.round_number_base(new_balance_currency))
 
         if side == 'sell':
 
-            self.wallet.set_balance_currency(sell_side, str(float(self.wallet.get_balance_currency(sell_side)) - float(size)))
-            self.wallet.set_balance_currency(buy_side, str(float(self.wallet.get_balance_currency(buy_side)) + float(size) * float(price) * (1 - float(fee))))
+            new_balance_currency = str(Decimal(self.wallet.get_balance_currency(sell_side)) - Decimal(size))
+            new_balance_usdt = str(Decimal(self.wallet.get_balance_currency(buy_side)) + Decimal(size) * Decimal(price) * (Decimal('1') - Decimal(fee)))
+
+            self.wallet.set_balance_currency(sell_side, self.round_number_base(new_balance_currency))
+            self.wallet.set_balance_currency(buy_side, self.round_number_quote(new_balance_usdt))
 
 
     def get_order_list(self, status = None):
@@ -130,7 +176,7 @@ class KucoinVirtual:
 
             if bucket['symbol'] == self.get_symbol_from_currency(currency):
 
-                return (len(bucket['baseIncrement']) - 2, len(bucket['quoteIncrement']) - 2)
+                return (bucket['baseIncrement'], bucket['quoteIncrement'])
     
         telegram_bot.send('Symbol not found in ' + self.wallet_name + '...')
 
@@ -143,49 +189,19 @@ class KucoinVirtual:
 
     def round_number(self, number, precision):
 
-        if abs(int(float(number) * (10**precision))) <= 1:
+        exp10 = Decimal('1') / (Decimal('10') ** Decimal(precision))
 
-            number = '0'
-
-        cad = str(number)
-
-        point_position = -1
-
-        for i in range(len(cad)):
-
-            if cad[i] == '.':
-
-                point_position = i
-        
-        if point_position == -1:
-
-            point_position = len(cad)
-
-            cad += '.'
-
-        while point_position + precision + 1 < len(cad):
-
-            cad = cad[0:-1]
-
-        while len(cad) < point_position + precision + 1:
-
-            cad += '0'
-
-        if cad[-1] == '.':
-
-            cad = cad[0:-1]
-        
-        return cad
+        return str(Decimal(number).quantize(exp10, rounding = decimal.ROUND_DOWN))
 
 
     def round_number_base(self, currency, number):
 
-        return self.round_number(number, self.get_constant_round(currency)[0])
+        return str(Decimal(number).quantize(Decimal(self.get_constant_round(currency)[0]), rounding = decimal.ROUND_DOWN))
 
 
-    def round_number_price(self, currency, number):
+    def round_number_quote(self, currency, number):
 
-        return self.round_number(number, self.get_constant_round(currency)[1])
+        return str(Decimal(number).quantize(Decimal(self.get_constant_round(currency)[1]), rounding = decimal.ROUND_DOWN))
 
 
     def get_balance_currency(self, currency):
@@ -252,7 +268,7 @@ class KucoinVirtual:
 
     def buy_currency(self, currency, funds):
 
-        if float(self.get_balance_usdt()) < float(funds) * (1 + float(self.get_currency_taker_fee(currency))):
+        if Decimal(self.get_balance_usdt()) < Decimal(funds) * (Decimal('1') + Decimal(self.get_currency_taker_fee(currency))):
 
             telegram_bot.send('Insufficient usdt balance in ' + self.wallet_name + ' to buy...')
 
@@ -262,7 +278,7 @@ class KucoinVirtual:
 
                 pass
 
-        ExceptionC.with_send(self.client_trade.create_market_order, symbol = self.get_symbol_from_currency(currency), side = 'buy', funds = self.round_number_price(currency, funds))
+        ExceptionC.with_send(self.client_trade.create_market_order, symbol = self.get_symbol_from_currency(currency), side = 'buy', funds = self.round_number_quote(currency, funds))
         
         while True:
 
@@ -275,7 +291,7 @@ class KucoinVirtual:
 
     def sell_currency(self, currency, size):
 
-        if float(self.get_balance_currency(currency)) < float(size):
+        if Decimal(self.get_balance_currency(currency)) < Decimal(size):
 
             telegram_bot.send('Insufficient currency balance in ' + self.wallet_name + ' to sell...')
 
