@@ -34,6 +34,7 @@ class TelegramCommands:
         self.telegram_handler.add_handler(CommandHandler('reboot', self.command_reboot))
         self.telegram_handler.add_handler(CommandHandler('price', self.command_price))
         self.telegram_handler.add_handler(CommandHandler('plot', self.command_plot))
+        self.telegram_handler.add_handler(CommandHandler('get', self.command_get))
         self.telegram_handler.add_handler(CommandHandler('dbclear', self.command_dbclear))
         self.telegram_handler.add_handler(CommandHandler('dbupdate', self.command_dbupdate))
         self.telegram_handler.add_handler(CommandHandler('dbdelete', self.command_dbdelete))
@@ -154,6 +155,49 @@ class TelegramCommands:
             update.message.reply_photo(open(filename, 'rb'))
             os.remove(filename)
 
+
+    def command_get(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+
+        currency = update.message.text.split()[1].upper()
+
+        try:
+        
+            days = update.message.text.split()[2].upper()
+
+            filename = str(update.message.chat_id) + '_' + str(update.message.message_id) + '.txt'
+
+            data = database.get_currency_days_before(currency, days)
+        
+            file = open(filename, 'w')
+            
+            for price in data:
+
+                file.write(str(price) + '\n')
+
+            file.close()
+
+            update.message.reply_document(open(filename, 'r'))
+            os.remove(filename)
+
+        except:
+
+            filename = str(update.message.chat_id) + '_' + str(update.message.message_id) + '.txt'
+
+            data = database.get_currency(currency)
+        
+            file = open(filename, 'w')
+            
+            for price in data:
+
+                file.write(str(price) + '\n')
+
+            file.close()
+
+            update.message.reply_document(open(filename, 'r'))
+            os.remove(filename)
+
     
     def command_dbclear(self, update, context):
 
@@ -216,6 +260,7 @@ class TelegramCommands:
         message += '/reboot\n'
         message += '/price [currency]\n'
         message += '/plot [currency] [days]\n'
+        message += '/get [currency] [days]\n'
         message += '/dbclear\n'
         message += '/dbupdate [currency] [days]\n'
         message += '/dbdelete [currency] [days]\n'
