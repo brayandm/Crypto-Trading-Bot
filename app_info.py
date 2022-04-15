@@ -39,6 +39,7 @@ class Info:
     def __init__(self):
 
         self.client_market = Market()
+        self.day_in_minutes = 60*24
 
 
     def get_currency_from_symbol(self, symbol):
@@ -171,22 +172,22 @@ class Info:
 
         for i in range(MA30-1, len(data)):
 
-            ma30x.append(i)
+            ma30x.append(i / self.day_in_minutes)
             ma30y.append(cumulative_table.sum(i-MA30+1, i) / MA30)
 
         for i in range(MA20-1, len(data)):
 
-            ma20x.append(i)
+            ma20x.append(i / self.day_in_minutes)
             ma20y.append(cumulative_table.sum(i-MA20+1, i) / MA20)
 
         for i in range(MA10-1, len(data)):
 
-            ma10x.append(i)
+            ma10x.append(i / self.day_in_minutes)
             ma10y.append(cumulative_table.sum(i-MA10+1, i) / MA10)
 
         for i in range(len(data)):
 
-            x.append(i)
+            x.append(i / self.day_in_minutes)
             y.append(float(data[i]))
 
         plt.figure()
@@ -194,6 +195,10 @@ class Info:
         plt.plot(ma20x, ma20y, color = 'orange', linestyle = '-', linewidth = 0.8)
         plt.plot(ma10x, ma10y, color = 'yellow', linestyle = '-', linewidth = 0.8)
         plt.plot(x, y, color = 'blue', linestyle = '-', linewidth = 0.8)
+        plt.title(currency + ' price chart')
+        plt.xlabel('days')
+        plt.ylabel('price')
+        plt.legend(labels = ['MA30', 'MA20', 'MA10', 'price'])
         plt.savefig(filename)
         
 
