@@ -340,7 +340,11 @@ class TelegramCommands:
 
                     message += 'sell -> ' + info.round_number(data[i][1], 4) + '\n'
 
-                    gain = (Decimal(data[i][1]) - Decimal(data[i-1][1])) / Decimal(data[i-1][1]) * Decimal('100')
+                    ratio = Decimal(data[i][1]) / Decimal(data[i-1][1])
+
+                    fee = Decimal('0.1') / Decimal('100')
+
+                    gain = (ratio - Decimal('1')) - fee * (ratio + Decimal('1'))
 
                     total_gain += gain
 
