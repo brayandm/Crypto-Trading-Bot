@@ -83,6 +83,16 @@ class TradeVirtual:
         return ExceptionC.with_send(self.client_market.get_24h_stats, symbol = symbol)['takerFeeRate']
 
 
+    def get_currency_from_symbol(self, symbol):
+
+        return symbol.split('-')[0]
+
+
+    def get_symbol_from_currency(self, currency):
+
+        return currency + '-USDT'
+
+
     def get_constant_round(self, currency):
 
         for bucket in ExceptionC.with_send(self.client_market.get_symbol_list):
