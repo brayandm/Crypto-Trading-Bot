@@ -149,7 +149,7 @@ class Info:
 
         else:
 
-            data = list(reversed(database.get_currency_days_before(currency, days + 30)))
+            data = list(reversed(database.get_currency_days_before(currency, str(int(days) + 30))))
 
         MA30 = self.day_in_minutes*30
         MA20 = self.day_in_minutes*20
