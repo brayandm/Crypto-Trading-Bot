@@ -198,8 +198,8 @@ class Info:
             ma20y = ma20y[self.day_in_minutes * 10:]
             ma10x = ma10x[self.day_in_minutes * 20:]
             ma10y = ma10y[self.day_in_minutes * 20:]
-            x = x[self.day_in_minutes * 30:]
-            y = y[self.day_in_minutes * 30:]
+            x = x[self.day_in_minutes * 30 - 1:]
+            y = y[self.day_in_minutes * 30 - 1:]
 
             for i in range(len(x)):
 
