@@ -127,7 +127,7 @@ class Kucoin:
         return arr
 
 
-    def get_order_list(self, currency):
+    def get_order_list(self):
 
         return ExceptionC.with_send(self.client_trade.get_order_list)
 
