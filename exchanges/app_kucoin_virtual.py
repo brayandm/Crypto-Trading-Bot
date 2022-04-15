@@ -130,16 +130,16 @@ class TradeVirtual:
             new_balance_usdt = str(Decimal(self.wallet.get_balance_currency(buy_side)) - Decimal(funds) * (Decimal('1') + Decimal(fee)))
             new_balance_currency = str(Decimal(self.wallet.get_balance_currency(sell_side)) + Decimal(funds) / Decimal(price))
 
-            self.wallet.set_balance_currency(buy_side, self.round_number_quote(new_balance_usdt))
-            self.wallet.set_balance_currency(sell_side, self.round_number_base(new_balance_currency))
+            self.wallet.set_balance_currency(buy_side, self.round_number_quote(sell_side, new_balance_usdt))
+            self.wallet.set_balance_currency(sell_side, self.round_number_base(sell_side, new_balance_currency))
 
         if side == 'sell':
 
             new_balance_currency = str(Decimal(self.wallet.get_balance_currency(sell_side)) - Decimal(size))
             new_balance_usdt = str(Decimal(self.wallet.get_balance_currency(buy_side)) + Decimal(size) * Decimal(price) * (Decimal('1') - Decimal(fee)))
 
-            self.wallet.set_balance_currency(sell_side, self.round_number_base(new_balance_currency))
-            self.wallet.set_balance_currency(buy_side, self.round_number_quote(new_balance_usdt))
+            self.wallet.set_balance_currency(sell_side, self.round_number_base(sell_side, new_balance_currency))
+            self.wallet.set_balance_currency(buy_side, self.round_number_quote(sell_side, new_balance_usdt))
 
 
     def get_order_list(self, status = None):
