@@ -1,3 +1,9 @@
+import app_constants
+import decimal
+from decimal import Decimal
+
+decimal.getcontext().prec = app_constants.FLOATING_PRECISION
+
 import json
 import os
 
@@ -308,9 +314,30 @@ class TelegramCommands:
 
         if not self.validate_user(update.message.chat_id): return
 
-        for x in self.wallet1.get_order_list()['items']:
+        data = []
 
-            update.message.reply_text(json.dumps(x))
+        for item in self.wallet1.get_order_list()['items']:
+
+            data.append([item['side'], str(Decimal(item['dealFunds']) / Decimal(item['dealSize']))])
+
+        data.reverse()
+
+        message = ''
+
+        for i in range(len(data)):
+
+            if data[i][0] == 'buy':
+
+                message += 'buy -> ' + data[i][1] + '\n'
+
+            else:
+
+                if i > 0:
+
+                    message += 'sell -> ' + data[i][1] + '\n'
+                    message += 'gain -> ' + str((Decimal(data[i][1]) - Decimal(data[i-1][1])) / Decimal(data[i-1][1]) * Decimal('100')) + '%\n'
+
+        update.message.reply_text(message)
 
     
     def wallet2_operations(self, update, context):
