@@ -1,6 +1,8 @@
 import pymongo
-import threading
 import os
+
+import threading
+from threading import Lock
 
 from kucoin.client import Market
 from app_exception_control import ExceptionC
@@ -122,6 +124,8 @@ class Database:
 
     def get_minutes_prices(self, currency, start, end):
 
+        thlock = Lock()
+
         results = {}
 
 
@@ -131,7 +135,11 @@ class Database:
 
                 try:
 
-                    results[start] = self.client_market.get_kline(symbol = currency + '-USDT', kline_type = '1min', startAt = str(start*60), endAt = str(end*60+1))
+                    data = self.client_market.get_kline(symbol = currency + '-USDT', kline_type = '1min', startAt = str(start*60), endAt = str(end*60+1))
+
+                    with thlock:
+
+                        results[start] = data
 
                     break
 
