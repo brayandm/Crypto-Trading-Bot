@@ -167,8 +167,6 @@ class Bot:
             message += 'Investment price: ' + self.Kc.round_number_quote(self.currency, str(investment_price)) + ' USDT\n'
             message += 'Stop loss price: ' + self.Kc.round_number_quote(self.currency, str(stop_loss)) + ' USDT\n'
             message += 'Take profit price: ' + self.Kc.round_number_quote(self.currency, str(take_profit)) + ' USDT\n'
-            message += 'Stop loss: -' + self.Kc.round_number_quote(self.currency, str(Decimal(self.investment_order_limit) * Decimal(self.stop_loss_percent) / Decimal('100'))) + ' USDT\n'
-            message += 'Take profit: +' + self.Kc.round_number_quote(self.currency, str(Decimal(self.investment_order_limit) * Decimal(self.take_profit_percent) / Decimal('100'))) + ' USDT\n'
 
             fee = self.Kc.get_currency_taker_fee(self.currency)
 
@@ -177,6 +175,11 @@ class Bot:
 
             investment_funds = Decimal(self.investment_order_limit) * Decimal(ratio_fee_up)
             investment_gain = Decimal(self.investment_order_limit) * Decimal(price_currency) / Decimal(investment_price) * Decimal(ratio_fee_down)
+            investment_stop_loss = Decimal(self.investment_order_limit) * Decimal(stop_loss) / Decimal(investment_price) * Decimal(ratio_fee_down)
+            investment_take_profit = Decimal(self.investment_order_limit) * Decimal(take_profit) / Decimal(investment_price) * Decimal(ratio_fee_down)
+
+            message += 'Stop loss: ' + self.Kc.round_number_quote(self.currency, str(Decimal(investment_stop_loss) - Decimal(investment_funds))) + ' USDT\n'
+            message += 'Take profit: +' + self.Kc.round_number_quote(self.currency, str(Decimal(investment_take_profit) - Decimal(investment_funds))) + ' USDT\n'
 
             current_gain = Decimal(investment_gain) - Decimal(investment_funds)
 
