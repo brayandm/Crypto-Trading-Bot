@@ -166,7 +166,7 @@ class TelegramCommands:
         
             days = update.message.text.split()[2].upper()
 
-            filename = currency + '_' + days + '_' + str(database.get_last_minutes_prices()['time']) + '_' + str(update.message.chat_id) + '_' + str(update.message.message_id) + '.txt'
+            filename = currency + '_' + days + '_' + str(update.message.chat_id) + '_' + str(update.message.message_id) + '.txt'
 
             data = database.get_currency_days_before(currency, days)
         
@@ -183,7 +183,7 @@ class TelegramCommands:
 
         except:
 
-            filename = currency + '_' + str(database.get_last_minutes_prices()['time']) + '_' + str(update.message.chat_id) + '_' + str(update.message.message_id) + '.txt'
+            filename = currency + '_' + str(update.message.chat_id) + '_' + str(update.message.message_id) + '.txt'
 
             data = database.get_currency(currency)
         
