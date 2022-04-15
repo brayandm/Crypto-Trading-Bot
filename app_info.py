@@ -149,11 +149,11 @@ class Info:
 
         else:
 
-            data = list(reversed(database.get_currency_days_before(currency, days)))
+            data = list(reversed(database.get_currency_days_before(currency, days + 30)))
 
-        MA30 = 60*24*30
-        MA20 = 60*24*20
-        MA10 = 60*24*10
+        MA30 = self.day_in_minutes*30
+        MA20 = self.day_in_minutes*20
+        MA10 = self.day_in_minutes*10
 
         cumulative_table = CumulativeTable()
 
@@ -190,15 +190,26 @@ class Info:
             x.append(i / self.day_in_minutes)
             y.append(float(data[i]))
 
+        if days != None:
+
+            ma30x = ma30x[self.day_in_minutes * 0:]
+            ma30y = ma30y[self.day_in_minutes * 0:]
+            ma20x = ma20x[self.day_in_minutes * 10:]
+            ma20y = ma20y[self.day_in_minutes * 10:]
+            ma10x = ma10x[self.day_in_minutes * 20:]
+            ma10y = ma10y[self.day_in_minutes * 20:]
+            x = x[self.day_in_minutes * 30:]
+            y = y[self.day_in_minutes * 30:]
+
         plt.figure()
         plt.plot(ma30x, ma30y, color = 'red', linestyle = '-', linewidth = 0.8)
         plt.plot(ma20x, ma20y, color = 'orange', linestyle = '-', linewidth = 0.8)
         plt.plot(ma10x, ma10y, color = 'yellow', linestyle = '-', linewidth = 0.8)
         plt.plot(x, y, color = 'blue', linestyle = '-', linewidth = 0.8)
-        plt.title(currency + ' price chart')
-        plt.xlabel('days')
-        plt.ylabel('price')
-        plt.legend(labels = ['MA30', 'MA20', 'MA10', 'price'])
+        plt.title(currency + ' Price Chart')
+        plt.xlabel('Days')
+        plt.ylabel('Price (USDT)')
+        plt.legend(labels = ['MA30', 'MA20', 'MA10', 'Price'])
         plt.savefig(filename)
         
 
