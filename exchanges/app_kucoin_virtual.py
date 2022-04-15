@@ -276,6 +276,11 @@ class KucoinVirtual:
         return arr
 
 
+    def get_order_list(self, currency):
+
+        return ExceptionC.with_send(self.client_trade.get_order_list)
+
+
     def buy_currency(self, currency, funds):
 
         if Decimal(self.get_balance_usdt()) < Decimal(funds) * (Decimal('1') + Decimal(self.get_currency_taker_fee(currency))):

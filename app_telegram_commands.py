@@ -1,3 +1,4 @@
+import json
 import os
 
 from telegram import Bot, ReplyKeyboardMarkup
@@ -307,7 +308,7 @@ class TelegramCommands:
 
         if not self.validate_user(update.message.chat_id): return
 
-        update.message.reply_text('Your order history in ' + self.wallet1.wallet_name + ' is clear')
+        update.message.reply_text(json.dumps(self.wallet1.get_order_list()))
 
     
     def wallet2_operations(self, update, context):
