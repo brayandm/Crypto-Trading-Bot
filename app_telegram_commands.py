@@ -45,6 +45,7 @@ class TelegramCommands:
         self.telegram_handler.add_handler(CommandHandler('dbclear', self.command_dbclear))
         self.telegram_handler.add_handler(CommandHandler('dbupdate', self.command_dbupdate))
         self.telegram_handler.add_handler(CommandHandler('dbdelete', self.command_dbdelete))
+        self.telegram_handler.add_handler(CommandHandler('getallfutures', self.command_getallfutures))
 
 
         self.telegram_handler.add_handler(MessageHandler(Filters.text('💰Wallets'), self.show_wallets))
@@ -255,7 +256,39 @@ class TelegramCommands:
             database.delete_currency(currency)
             
             update.message.reply_text('The ' + currency + ' database was deleted')
+
+    
+    def command_getallfutures(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+
+        text = update.message.text.split()
+
+        days = text[1]
+        granularity = text[2]
+        symbols = text[3:]
+
+        data = info.get_all_futures(days, granularity, symbols)
+
+        filename = 'Futures' + '_' + days + '_' + str(update.message.chat_id) + '_' + str(update.message.message_id) + '.txt'
+    
+        file = open(filename, 'w')
         
+        for symbol in data:
+
+            file.write(symbol[0] + ':\n')
+
+            for price in symbol[1]:
+
+                file.write(str(price) + '\n')
+
+            file.write('\n')
+
+        file.close()
+
+        update.message.reply_document(open(filename, 'r'))
+        os.remove(filename)
+
 
     def show_help(self, update, context):
 

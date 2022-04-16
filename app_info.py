@@ -4,9 +4,13 @@ from decimal import Decimal
 
 decimal.getcontext().prec = app_constants.FLOATING_PRECISION
 
+import threading
+from threading import RLock
+
 import matplotlib.pyplot as plt
 
 from kucoin.client import Market
+from kucoin_futures.client import Market as MarketFutures
 
 from app_telegram import telegram_bot
 from app_exception_control import ExceptionC
@@ -45,7 +49,9 @@ class Info:
     def __init__(self):
 
         self.client_market = Market()
+        self.client_market_futures = MarketFutures()
         self.day_in_minutes = 60*24
+        self.maximum_size_per_request = 200
 
 
     def get_currency_from_symbol(self, symbol):
@@ -119,6 +125,82 @@ class Info:
             arr.append(bucket[2])
 
         return arr
+
+    
+    def get_server_time_minutes(self):
+
+        return ExceptionC.with_send(self.client_market.get_server_timestamp) // 1000 // 60
+
+    
+    def get_prices_futures(self, symbol, granularity, start, end):
+
+        granularity = int(granularity)
+        start = int(start)
+        end = int(end)
+
+        thlock = RLock()
+
+        results = {}
+
+
+        def get_kline(symbol, granularity, start, end):
+        
+            while True:
+
+                try:
+
+                    data = self.client_market_futures.get_kline(symbol = symbol, granularity = granularity, begin_t = str(start*60), end_t = str(end*60+1))
+
+                    with thlock:
+
+                        results[start] = data
+
+                    break
+
+                except:
+
+                    pass
+
+
+        mthreads = []
+
+        for i in reversed(range(start, end+1, granularity * self.maximum_size_per_request)):
+
+            tstart = i
+            tend = min(i + granularity * self.maximum_size_per_request - 1, end)
+
+            mthreads.append(threading.Thread(target=get_kline, args=(symbol, granularity, tstart, tend,)))
+
+        for i in range(len(mthreads)):
+
+            mthreads[i].start()
+
+        for i in range(len(mthreads)):
+
+            mthreads[i].join()
+
+        data = []
+
+        for i in reversed(range(start, end+1, granularity * self.maximum_size_per_request)):
+
+            for j in range(len(results[i])):
+
+                data.append(results[i][j][2])
+
+        return data
+
+
+    def get_all_futures(self, days, granularity, symbols):
+
+        last_day = self.get_server_time_minutes() // self.day_in_minutes
+
+        data = []
+
+        for symbol in symbols:
+
+            data.append([symbol, self.get_prices_futures(symbol, granularity, (last_day-int(days)) * self.day_in_minutes, last_day * self.day_in_minutes)])
+
+        return data
 
 
     def generate_image_currency_prices(self, currency, filename, days = None):
