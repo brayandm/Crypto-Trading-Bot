@@ -192,13 +192,41 @@ class Info:
 
     def get_all_futures(self, days, granularity, symbols):
 
+        thlock = RLock()
+
+        results = {}
+
+
+        def get_prices(symbol, granularity, start, end):
+        
+            data = self.get_prices_futures(symbol, granularity, start, end)
+
+            with thlock:
+
+                results[symbol] = data
+
+
         last_day = self.get_server_time_minutes() // self.day_in_minutes
+
+        mthreads = []
+
+        for symbol in symbols:
+
+            mthreads.append(threading.Thread(target=get_prices, args=(symbol, granularity, (last_day-int(days)) * self.day_in_minutes, last_day * self.day_in_minutes,)))
+
+        for i in range(len(mthreads)):
+
+            mthreads[i].start()
+
+        for i in range(len(mthreads)):
+
+            mthreads[i].join()
 
         data = []
 
         for symbol in symbols:
 
-            data.append([symbol, self.get_prices_futures(symbol, granularity, (last_day-int(days)) * self.day_in_minutes, last_day * self.day_in_minutes)])
+            data.append([symbol, results[symbol]])
 
         return data
 
