@@ -75,7 +75,7 @@ class TradeVirtual:
 
     def get_price_currency(self, symbol = None):
 
-        return ExceptionC.with_send(self.client_market.get_24h_stats, symbol = symbol)['last'] 
+        return ExceptionC.with_send(self.client_market.get_ticker, symbol = symbol)['price'] 
 
 
     def get_currency_taker_fee(self, symbol = None):
@@ -249,7 +249,7 @@ class KucoinVirtual:
 
     def get_price_currency(self, currency):
 
-        return ExceptionC.with_send(self.client_market.get_24h_stats, symbol = self.get_symbol_from_currency(currency))['last']
+        return ExceptionC.with_send(self.client_market.get_ticker, symbol = self.get_symbol_from_currency(currency))['price']
 
 
     def get_currency_taker_fee(self, currency):
