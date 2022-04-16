@@ -149,7 +149,7 @@ class Info:
 
                 try:
 
-                    data = self.client_market_futures.get_kline(symbol = symbol, granularity = granularity, begin_t = str(start*60), end_t = str(end*60+1))
+                    data = self.client_market_futures.get_kline_data(symbol = symbol, granularity = granularity, begin_t = start*60*1000, end_t = end*60*1000+1)
 
                     with thlock:
 
@@ -185,7 +185,7 @@ class Info:
 
             for j in range(len(results[i])):
 
-                data.append(results[i]['data'][j][4])
+                data.append(str(results[i][j][4]))
 
         return data
 
