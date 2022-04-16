@@ -153,7 +153,7 @@ class Info:
 
                     with thlock:
 
-                        results[start] = list(data).reverse()
+                        results[start] = data
 
                     break
 
@@ -183,7 +183,7 @@ class Info:
 
         for i in reversed(range(start, end+1, granularity * self.maximum_size_per_request)):
 
-            for j in range(len(results[i])):
+            for j in reversed(range(len(results[i]))):
 
                 data.append(str(results[i][j][4]))
 
