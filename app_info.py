@@ -185,7 +185,7 @@ class Info:
 
             for j in range(len(results[i])):
 
-                data.append(results[i][j][2])
+                data.append(results[i]['data'][j][4])
 
         return data
 
