@@ -304,6 +304,7 @@ class TelegramCommands:
         message += '/dbclear\n'
         message += '/dbupdate [currency] [days]\n'
         message += '/dbdelete [currency] [days]\n'
+        message += '/getallfutures [days] [granularity] [symbols...]\n'
 
         update.message.reply_text(message)
 
