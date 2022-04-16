@@ -153,7 +153,13 @@ class Info:
 
                     with thlock:
 
-                        results[start] = data
+                        try:
+
+                            results[start] = data['data']
+
+                        except:
+
+                            results[start] = data
 
                     break
 
@@ -192,7 +198,7 @@ class Info:
 
     def get_all_futures(self, days, granularity, symbols):
 
-        thlock = RLock()
+        futuresthlock = RLock()
 
         results = {}
 
@@ -201,7 +207,7 @@ class Info:
         
             data = self.get_prices_futures(symbol, granularity, start, end)
 
-            with thlock:
+            with futuresthlock:
 
                 results[symbol] = data
 
