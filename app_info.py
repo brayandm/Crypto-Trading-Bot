@@ -153,7 +153,7 @@ class Info:
 
                     with thlock:
 
-                        results[start] = data.reverse()
+                        results[start] = list(data).reverse()
 
                     break
 
