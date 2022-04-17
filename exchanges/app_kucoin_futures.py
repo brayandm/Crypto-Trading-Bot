@@ -1,4 +1,4 @@
-import exchanges.app_futures_currencies as app_futures_currencies
+import app_futures_currencies as app_futures_currencies
 import app_constants
 import decimal
 from decimal import Decimal
