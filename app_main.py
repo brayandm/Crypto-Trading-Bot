@@ -18,7 +18,7 @@ is_sandbox = True if os.environ['is_sandbox'] == 'yes' else False
 
 wallet1 = Kucoin('KcWallet', api_key, api_secret, api_passphrase, is_sandbox)
 wallet2 = KucoinVirtual('VirtualWallet')
-futures = KucoinFutures('Futures')
+futures = KucoinFutures('KcFutures')
 bot1 = Bot('KcBot', wallet1)
 bot2 = Bot('VirtualBot', wallet2)
 telegram_commands = TelegramCommands(bot1, bot2, wallet1, wallet2, futures)
