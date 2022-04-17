@@ -33,6 +33,8 @@ class KucoinFutures:
 
     def RSI(self, symbol, type):
 
+        type = int(type)
+
         EPS = 1e-9
 
         while True:
