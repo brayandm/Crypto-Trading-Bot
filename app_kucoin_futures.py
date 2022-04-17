@@ -101,10 +101,10 @@ class KucoinFutures:
 
             mthreads[i].join()
 
-        data = []
+        data = {}
 
         for symbol in self.symbols:
 
-            data.append([symbol, results[symbol]])
+            data[symbol] = results[symbol]
 
         return data
