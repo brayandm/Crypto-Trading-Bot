@@ -320,6 +320,8 @@ class TelegramCommands:
 
         message += '\nBest: ' + bestsymbol + ' with RSI ' + str(round(data[bestsymbol], 2))
 
+        update.message.reply_text(message)
+
 
     def show_help(self, update, context):
 
