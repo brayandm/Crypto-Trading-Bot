@@ -237,6 +237,21 @@ class Info:
         return data
 
 
+    def get_all_futures_without_multithreading(self, days, granularity, symbols):
+
+        last_day = self.get_server_time_minutes() // self.day_in_minutes
+
+        data = []
+
+        for symbol in symbols:
+
+            data.append([symbol, self.get_prices_futures(symbol, granularity, (last_day-int(days)) * self.day_in_minutes, last_day * self.day_in_minutes)])
+
+            telegram_bot.send(symbol + ': done')
+
+        return data
+
+
     def generate_image_currency_prices(self, currency, filename, days = None):
 
         if days == None:

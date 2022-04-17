@@ -268,7 +268,7 @@ class TelegramCommands:
         granularity = text[2]
         symbols = text[3:]
 
-        data = info.get_all_futures(days, granularity, symbols)
+        data = info.get_all_futures_without_multithreading(days, granularity, symbols)
 
         filename = 'Futures' + '_' + days + '_' + str(update.message.chat_id) + '_' + str(update.message.message_id) + '.txt'
     
