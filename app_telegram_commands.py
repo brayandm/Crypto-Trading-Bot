@@ -15,12 +15,13 @@ from app_database import database
 
 class TelegramCommands:
 
-    def init(self, bot1, bot2, wallet1, wallet2):
+    def init(self, bot1, bot2, wallet1, wallet2, futures):
 
         self.bot1 = bot1
         self.bot2 = bot2
         self.wallet1 = wallet1
         self.wallet2 = wallet2
+        self.futures = futures
 
         self.keyboards = {
             'main-menu': [['💰Wallets'], ['🤖Bots'], ['❓Help']],
@@ -46,6 +47,7 @@ class TelegramCommands:
         self.telegram_handler.add_handler(CommandHandler('dbupdate', self.command_dbupdate))
         self.telegram_handler.add_handler(CommandHandler('dbdelete', self.command_dbdelete))
         self.telegram_handler.add_handler(CommandHandler('getallfutures', self.command_getallfutures))
+        self.telegram_handler.add_handler(CommandHandler('getrsi', self.command_getrsi))
 
 
         self.telegram_handler.add_handler(MessageHandler(Filters.text('💰Wallets'), self.show_wallets))
@@ -289,6 +291,35 @@ class TelegramCommands:
         update.message.reply_document(open(filename, 'r'))
         os.remove(filename)
 
+    
+    def command_getrsi(self, update, context):
+
+        if not self.validate_user(update.message.chat_id): return
+
+        text = update.message.text.split()
+
+        type = text[1]
+
+        data = self.futures.get_RSIs(type)
+
+        bestsymbol = None
+
+        message = ''
+
+        for key in data:
+
+            message += key + ': '  + str(round(data[key], 2)) + '\n'
+
+            if bestsymbol == None:
+
+                bestsymbol = key
+
+            elif data[bestsymbol] < data[key]:
+
+                bestsymbol = key
+
+        message += '\nBest: ' + bestsymbol + ' with RSI ' + str(round(data[bestsymbol], 2))
+
 
     def show_help(self, update, context):
 
@@ -305,6 +336,7 @@ class TelegramCommands:
         message += '/dbupdate [currency] [days]\n'
         message += '/dbdelete [currency] [days]\n'
         message += '/getallfutures [days] [granularity] [symbols...]\n'
+        message += '/getrsi [type]\n'
 
         update.message.reply_text(message)
 
