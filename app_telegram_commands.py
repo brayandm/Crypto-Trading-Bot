@@ -84,9 +84,9 @@ class TelegramCommands:
         self.telegram_handler.add_handler(MessageHandler(Filters.text('⬅️Back to bots'), self.show_bots))
 
 
-    def __init__(self, bot1, bot2, wallet1, wallet2):
+    def __init__(self, bot1, bot2, wallet1, wallet2, futures):
 
-        ExceptionC.with_send(self.init, bot1 = bot1, bot2 = bot2, wallet1 = wallet1, wallet2 = wallet2)
+        ExceptionC.with_send(self.init, bot1 = bot1, bot2 = bot2, wallet1 = wallet1, wallet2 = wallet2, futures = futures)
 
 
     def listen(self):
