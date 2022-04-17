@@ -1,4 +1,4 @@
-import app_futures_currencies
+import exchanges.app_futures_currencies as app_futures_currencies
 import app_constants
 import decimal
 from decimal import Decimal
@@ -32,6 +32,8 @@ class KucoinFutures:
 
 
     def RSI(self, symbol, type):
+
+        type = int(type)
 
         EPS = 1e-9
 
@@ -99,10 +101,10 @@ class KucoinFutures:
 
             mthreads[i].join()
 
-        data = []
+        data = {}
 
         for symbol in self.symbols:
 
-            data.append([symbol, results[symbol]])
+            data[symbol] = results[symbol]
 
         return data
