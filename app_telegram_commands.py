@@ -302,6 +302,20 @@ class TelegramCommands:
 
         data = self.futures.get_RSIs(type)
 
+        temp = []
+
+        for key in data:
+
+            temp.append((data[key], key))
+
+        temp.sort()
+
+        data = {}
+
+        for x in temp:
+
+            data[x[1]] = x[0]
+
         bestsymbol = None
 
         message = ''
